@@ -2,19 +2,18 @@ name: updates
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Hourly
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 env:
-  REDIS_IMAGE: "cgr.dev/cgr-demo.com/redis-server-bitnami"
+  # Core demo images (set these to the pair you want to demonstrate)
+  DEMO_OLD_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.12"
+  DEMO_NEW_IMAGE: "cgr.dev/cgr-demo.com/python:3.12-202508222152"
+
+  # Toggle scanners
   SCAN_WITH_GRYPE: "true"
   SCAN_WITH_PRISMA_CLOUD: "true"
   OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
-
-  # Demo override (set to "false" to use the Helm+crane auto-detection path)
-  DEMO_OVERRIDE: "true"
-  DEMO_OLD_IMAGE: "cgr.dev/cgr-demo.com/python:3.12-202507181249"
-  DEMO_NEW_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.12"
 
 permissions: {}
 
@@ -22,28 +21,27 @@ jobs:
   check-for-fixes:
     runs-on: ubuntu-latest
     permissions:
-      actions: read
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
       contents: write
-      packages: write
+      pull-requests: write
+      security-events: write
       id-token: write
+
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: main
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Setup Go environment
-        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed
         with:
           cache: false
 
-      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
+      # Token used for PR creation etc. (your existing Octo STS setup)
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f
         id: octo-sts
         with:
           scope: chainguard-demo/auto-deploy-demo
@@ -52,139 +50,49 @@ jobs:
       - name: Install Crane
         run: go install github.com/google/go-containerregistry/cmd/crane@latest
 
-      - name: Install Grype
+      - name: Install Grype (pinned release)
         if: env.SCAN_WITH_GRYPE == 'true'
         run: |
           set -euo pipefail
-
-          # Prefer the official release artifact (avoids "latest" 404 issues)
-          GRYPE_VERSION="v0.87.0"
+          GRYPE_VERSION="v0.91.2"
           curl -sSfL "https://github.com/anchore/grype/releases/download/${GRYPE_VERSION}/grype_${GRYPE_VERSION#v}_linux_amd64.tar.gz" \
             | tar -xz -C /usr/local/bin grype
-
           grype version
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da
 
-      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262 # v0.2.4
+      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262
         with:
           identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
 
       - name: Auth to Registry
-        run: |
-          chainctl auth configure-docker
+        run: chainctl auth configure-docker
 
-      # --------------------------
-      # Demo override path
-      # --------------------------
-      - name: Demo override OLD/NEW images
-        if: env.DEMO_OVERRIDE == 'true'
+      - name: Set OLD_IMAGE / NEW_IMAGE from demo inputs
         run: |
-          echo "UNIQUE_TAGS_CHANGED=true" >> "$GITHUB_ENV"
           echo "OLD_IMAGE=${{ env.DEMO_OLD_IMAGE }}" >> "$GITHUB_ENV"
           echo "NEW_IMAGE=${{ env.DEMO_NEW_IMAGE }}" >> "$GITHUB_ENV"
+          echo "OLD_IMAGE=${{ env.DEMO_OLD_IMAGE }}"
+          echo "NEW_IMAGE=${{ env.DEMO_NEW_IMAGE }}"
 
-          # Keep these populated for downstream messaging/PR body; not used for the demo pair
-          echo "CURRENT_UNIQUE_TAG=demo" >> "$GITHUB_ENV"
-          echo "LATEST_UNIQUE_TAG=demo" >> "$GITHUB_ENV"
-
-          echo "Using DEMO_OLD_IMAGE=${{ env.DEMO_OLD_IMAGE }}"
-          echo "Using DEMO_NEW_IMAGE=${{ env.DEMO_NEW_IMAGE }}"
-
-      # --------------------------
-      # Normal auto-detection path
-      # --------------------------
-      - name: Extract current pinned image.tag from Helm values
-        if: env.DEMO_OVERRIDE != 'true'
-        id: extract_unique_tag
-        run: |
-          CURRENT_UNIQUE_TAG="$(yq '.image.tag' helm/redis/values.yaml)"
-          echo "CURRENT_UNIQUE_TAG=$CURRENT_UNIQUE_TAG" >> "$GITHUB_ENV"
-          echo "Pinned CURRENT_UNIQUE_TAG=$CURRENT_UNIQUE_TAG"
-
-      - name: Get latest unique tag
-        if: env.DEMO_OVERRIDE != 'true'
-        id: get_latest_unique_tag
+      - name: Cosign verify new image signature
         run: |
           set -euo pipefail
-
-          set +o pipefail
-          LATEST_UNIQUE_TAG="$(
-            crane ls "${{ env.REDIS_IMAGE }}" \
-              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+-[0-9]{12}$' \
-              | grep -v -- '-dev$' \
-              | grep -v -- '^latest$' \
-              | sort -Vr \
-              | head -n 1
-          )"
-          set -o pipefail
-
-          echo "LATEST_UNIQUE_TAG=$LATEST_UNIQUE_TAG" >> "$GITHUB_ENV"
-          echo "Found LATEST_UNIQUE_TAG=$LATEST_UNIQUE_TAG"
-
-      - name: Compare pinned vs latest tag
-        if: env.DEMO_OVERRIDE != 'true'
-        id: compare_unique_tags
-        run: |
-          if [ "${{ env.CURRENT_UNIQUE_TAG }}" != "${{ env.LATEST_UNIQUE_TAG }}" ]; then
-            echo "UNIQUE_TAGS_CHANGED=true" >> "$GITHUB_ENV"
-            echo "Tag changed."
-          else
-            echo "UNIQUE_TAGS_CHANGED=false" >> "$GITHUB_ENV"
-            echo "No tag change."
-          fi
-
-      - name: Get previous unique tag
-        if: env.DEMO_OVERRIDE != 'true' && env.UNIQUE_TAGS_CHANGED == 'true'
-        id: get_previous_unique_tag
-        run: |
-          set -euo pipefail
-
-          set +o pipefail
-          PREVIOUS_UNIQUE_TAG="$(
-            crane ls "${{ env.REDIS_IMAGE }}" \
-              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+-[0-9]{12}$' \
-              | grep -v -- '-dev$' \
-              | grep -v -- '^latest$' \
-              | sort -Vr \
-              | head -n 2 \
-              | tail -n 1
-          )"
-          set -o pipefail
-
-          echo "PREVIOUS_UNIQUE_TAG=$PREVIOUS_UNIQUE_TAG" >> "$GITHUB_ENV"
-          echo "Found PREVIOUS_UNIQUE_TAG=$PREVIOUS_UNIQUE_TAG"
-
-      - name: Set OLD_IMAGE and NEW_IMAGE (pinned -> latest)
-        if: env.DEMO_OVERRIDE != 'true' && env.UNIQUE_TAGS_CHANGED == 'true'
-        run: |
-          echo "OLD_IMAGE=${{ env.REDIS_IMAGE }}:${{ env.CURRENT_UNIQUE_TAG }}" >> "$GITHUB_ENV"
-          echo "NEW_IMAGE=${{ env.REDIS_IMAGE }}:${{ env.LATEST_UNIQUE_TAG }}" >> "$GITHUB_ENV"
-
-      # --------------------------
-      # Shared steps (demo + normal)
-      # --------------------------
-      - name: Cosign Verify NEW_IMAGE
-        if: env.UNIQUE_TAGS_CHANGED == 'true'
-        id: cosign-verify
-        run: |
           CATALOG_SYNCER="4cf15780a13a9b6576d8b357e6524554c8c12a18/c03040118377d88c"
           APKO_BUILDER="4cf15780a13a9b6576d8b357e6524554c8c12a18/ca93125e202f81f8"
-
           cosign verify \
             --certificate-oidc-issuer=https://issuer.enforce.dev \
             --certificate-identity-regexp="https://issuer.enforce.dev/(${CATALOG_SYNCER}|${APKO_BUILDER})" \
             "${{ env.NEW_IMAGE }}" | jq
 
-      - name: Run chainctl images diff (OLD_IMAGE -> NEW_IMAGE)
-        if: env.UNIQUE_TAGS_CHANGED == 'true'
+      - name: Run chainctl images diff to open PR for Vuln Fixes
         id: diff_vulnerabilities
         run: |
           set -euo pipefail
 
-          echo "CVE_LIST=[]" >> "$GITHUB_ENV"
           echo "FIX_CVE=false" >> "$GITHUB_ENV"
+          echo "CVE_LIST=[]" >> "$GITHUB_ENV"
 
           echo "Running chainctl images diff..."
           set +e
@@ -196,21 +104,15 @@ jobs:
           echo "$DIFF_OUTPUT"
 
           if [ $RC -ne 0 ]; then
-            echo "chainctl images diff failed. Skipping CVE evaluation."
+            echo "chainctl images diff failed; skipping demo PR."
             exit 0
           fi
 
-          # chainctl prints log lines + JSON. Grab the JSON object line(s).
+          # chainctl prints log lines + JSON; extract JSON starting at first "{"
           DIFF_JSON="$(echo "$DIFF_OUTPUT" | awk 'BEGIN{found=0} /^\{/{found=1} found{print}')"
 
-          if [ -z "$DIFF_JSON" ]; then
-            echo "Could not extract JSON from chainctl output."
-            exit 0
-          fi
-
           if ! echo "$DIFF_JSON" | jq -e . >/dev/null 2>&1; then
-            echo "Extracted content was not valid JSON:"
-            echo "$DIFF_JSON"
+            echo "Diff output was not valid JSON; skipping demo PR."
             exit 0
           fi
 
@@ -218,52 +120,34 @@ jobs:
           echo "CVE_LIST=$CVE_LIST_JSON" >> "$GITHUB_ENV"
 
           if [ "$(echo "$CVE_LIST_JSON" | jq 'length')" -gt 0 ]; then
-            echo "Found CVE fixes: $CVE_LIST_JSON"
+            echo "Found removed vulns: $CVE_LIST_JSON"
             echo "FIX_CVE=true" >> "$GITHUB_ENV"
           else
-            echo "No CVE fixes available"
+            echo "No removed vulns; not opening PR."
           fi
 
-      - name: Scan NEW_IMAGE with Grype
+      - name: Scan new image with Grype
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
         run: |
           set -euo pipefail
           grype "${{ env.NEW_IMAGE }}" -o sarif > grype-results.sarif
 
-          SARIF_SUMMARY="$(grype "${{ env.NEW_IMAGE }}" 2>&1 | tee /dev/stderr)"
+          SUMMARY="$(grype "${{ env.NEW_IMAGE }}" 2>&1 | head -n 80)"
           {
             echo "SARIF_SUMMARY<<EOF"
-            echo "$SARIF_SUMMARY"
+            echo "$SUMMARY"
             echo "EOF"
           } >> "$GITHUB_ENV"
 
-      - name: Clear outdated SARIF
-        if: env.FIX_CVE == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          ORGANIZATION="chainguard-demo"
-          REPOSITORY="auto-deploy-demo"
-
-          echo "Retrieving all analysis results in $ORGANIZATION/$REPOSITORY"
-          ANALYSIS_IDS=$(gh api -X GET "repos/$ORGANIZATION/$REPOSITORY/code-scanning/analyses?per_page=100&direction=asc" --paginate --jq='.[] | select(.deletable==true) | .id')
-
-          for analysis_id in ${ANALYSIS_IDS}
-          do
-            echo "Deleting analysis result $analysis_id"
-            gh api -X DELETE "repos/$ORGANIZATION/$REPOSITORY/code-scanning/analyses/$analysis_id?confirm_delete=true" --silent
-          done
-
-      - name: Upload new Grype SARIF results
+      - name: Upload Grype SARIF results
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
-        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5 # v3.28.11
+        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5
         with:
           sarif_file: grype-results.sarif
 
       - name: Pre-pull docker image for Prisma Cloud scan
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
-        run: |
-          docker pull "${{ env.NEW_IMAGE }}"
+        run: docker pull "${{ env.NEW_IMAGE }}"
 
       - name: Prisma Cloud image scan
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
@@ -275,29 +159,39 @@ jobs:
           pcc_pass: ${{ secrets.PCC_PASS }}
           image_name: "${{ env.NEW_IMAGE }}"
 
-      - name: Upload new Prisma Cloud SARIF file
+      - name: Upload Prisma Cloud SARIF file
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
-        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5 # v3.28.11
+        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5
         with:
           sarif_file: ${{ steps.prismascan.outputs.sarif_file }}
 
       - name: Extract Prisma Cloud Console Link
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
-        id: extract_prisma_link
         run: |
-          results_file=${{ steps.prismascan.outputs.results_file }}
-          PRISMA_CLOUD_URL=$(cat "$results_file" | jq -r '.consoleURL')
+          set -euo pipefail
+          results_file="${{ steps.prismascan.outputs.results_file }}"
+          PRISMA_CLOUD_URL="$(cat "$results_file" | jq -r '.consoleURL')"
           echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL" >> "$GITHUB_ENV"
 
-      - name: Update Helm Values (pin to latest)
-        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
+      # Always create a diff to PR when FIX_CVE=true
+      - name: Write demo results to repo
+        if: env.FIX_CVE == 'true'
         run: |
-          yq -i ".image.tag = \"${{ env.LATEST_UNIQUE_TAG }}\"" helm/redis/values.yaml
+          set -euo pipefail
+          mkdir -p demo-results
+          {
+            echo "timestamp=$(date -u +%FT%TZ)"
+            echo "old_image=${{ env.OLD_IMAGE }}"
+            echo "new_image=${{ env.NEW_IMAGE }}"
+            echo "cves_removed=${{ env.CVE_LIST }}"
+            echo "prisma_url=${{ env.PRISMA_CLOUD_URL }}"
+          } > demo-results/last-run.txt
 
       - name: Run git diff
-        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
+        if: env.FIX_CVE == 'true'
         id: create_pr_update
         run: |
+          set -euo pipefail
           git diff --stat
           echo "create_pr_update=false" >> "$GITHUB_OUTPUT"
           if [[ $(git diff --stat) != '' ]]; then
@@ -307,33 +201,24 @@ jobs:
             echo "EOF" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: chainguard-dev/actions/setup-gitsign@57cb0b7560d9b9b081c15ac5ef689f73f4dda03e # main branch as of 2024-08-02
-        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
-
-      - name: Delete existing branch and PR
-        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
-        env:
-          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
-        run: |
-          PR_NUMBER=$(gh pr list --head "apply-cve-fix" --json number --jq '.[0].number')
-          if [ -n "$PR_NUMBER" ]; then
-            echo "Closing PR #$PR_NUMBER"
-            gh pr close "$PR_NUMBER" --delete-branch
-          else
-            echo "No PR found for branch 'apply-cve-fix'"
-          fi
-
       - name: Create Pull Request
-        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
+        if: env.FIX_CVE == 'true' && steps.create_pr_update.outputs.create_pr_update == 'true'
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
-        id: pull_request
         with:
           token: ${{ steps.octo-sts.outputs.token }}
-          commit-message: 'Update images digests'
-          title: 'Apply CVE Fix'
+          commit-message: "Demo: record CVE fix results"
+          title: "Demo: CVE fix detected for Python image"
           body: |
+            **OLD_IMAGE:** `${{ env.OLD_IMAGE }}`
+            **NEW_IMAGE:** `${{ env.NEW_IMAGE }}`
+
+            **Removed CVEs (chainctl images diff):**
+            ```json
+            ${{ env.CVE_LIST }}
+            ```
+
             <details>
-            <summary>Grype Scan Summary after updating to ${{ env.LATEST_UNIQUE_TAG }}</summary>
+            <summary>Grype Scan Summary</summary>
 
             ```text
             ${{ env.SARIF_SUMMARY }}
@@ -341,7 +226,7 @@ jobs:
             </details>
 
             ## Prisma Cloud Console Link
-            [View detailed scan results in Prisma Cloud Console](${{ env.PRISMA_CLOUD_URL }})
+            ${{ env.PRISMA_CLOUD_URL }}
 
             ## Changes
             <details>
@@ -352,7 +237,5 @@ jobs:
             ```
             </details>
           labels: automated pr, cve, patch
-          branch: 'apply-cve-fix'
-          committer: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
-          author: '${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>'
+          branch: "apply-cve-fix"
           delete-branch: true
