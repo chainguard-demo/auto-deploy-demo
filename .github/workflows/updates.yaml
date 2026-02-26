@@ -111,9 +111,21 @@ jobs:
         if: env.UNIQUE_TAGS_CHANGED == 'true'
         id: diff_vulnerabilities
         run: |
-          CVE_LIST_JSON=$(chainctl images diff "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" \
-            | jq -c '[.vulnerabilities.removed[]? | .id]')
+          set -euo pipefail
 
+          # Default values
+          echo "CVE_LIST=[]" >> $GITHUB_ENV
+          echo "FIX_CVE=false" >> $GITHUB_ENV
+
+          # Run diff; if it fails (e.g. attestation verification), stop this path cleanly
+          DIFF_JSON="$(chainctl images diff "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" --output json 2>/dev/null || true)"
+
+          if [ -z "$DIFF_JSON" ]; then
+            echo "chainctl images diff produced no output (likely attestation/identity verification failure)."
+            exit 0
+          fi
+
+          CVE_LIST_JSON="$(echo "$DIFF_JSON" | jq -c '[.vulnerabilities.removed[]? | .id]')"
           echo "CVE_LIST=$CVE_LIST_JSON" >> $GITHUB_ENV
 
           if [ "$(echo "$CVE_LIST_JSON" | jq 'length')" -gt 0 ]; then
@@ -121,7 +133,6 @@ jobs:
             echo "FIX_CVE=true" >> $GITHUB_ENV
           else
             echo "No CVE fixes available"
-            echo "FIX_CVE=false" >> $GITHUB_ENV
           fi
     
       - name: Scan New Image with Grype
