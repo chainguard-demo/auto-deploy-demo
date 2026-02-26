@@ -111,12 +111,13 @@ jobs:
         if: env.UNIQUE_TAGS_CHANGED == 'true'
         id: diff_vulnerabilities
         run: |
+          CVE_LIST_JSON=$(chainctl images diff "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" \
+            | jq -c '[.vulnerabilities.removed[]? | .id]')
 
-          CVE_LIST_JSON=$(chainctl images diff "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" 2>/dev/null | jq -c 'select(.vulnerabilities.removed != null) | [.vulnerabilities.removed[] | select(.severity == "Critical" or .severity == "High") | .id]')
           echo "CVE_LIST=$CVE_LIST_JSON" >> $GITHUB_ENV
 
-          if [ -n "$CVE_LIST_JSON" ]; then
-            echo "Found CVE fixes for the following CVES: $CVE_LIST_JSON"
+          if [ "$(echo "$CVE_LIST_JSON" | jq 'length')" -gt 0 ]; then
+            echo "Found CVE fixes: $CVE_LIST_JSON"
             echo "FIX_CVE=true" >> $GITHUB_ENV
           else
             echo "No CVE fixes available"
