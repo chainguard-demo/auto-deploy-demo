@@ -118,10 +118,9 @@ jobs:
           echo "FIX_CVE=false" >> $GITHUB_ENV
 
           echo "Running chainctl images diff..."
-          
-          # Capture both stdout + stderr
+
           set +e
-          DIFF_OUTPUT="$(chainctl images diff "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" --output json --skip-verify 2>&1)"
+          DIFF_OUTPUT="$(chainctl images diff "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" --output json 2>&1)"
           RC=$?
           set -e
 
@@ -129,19 +128,16 @@ jobs:
           echo "chainctl output:"
           echo "$DIFF_OUTPUT"
 
-          # If command failed, stop cleanly
           if [ $RC -ne 0 ]; then
             echo "chainctl images diff failed. Skipping CVE evaluation."
             exit 0
           fi
 
-          # Validate JSON
           if ! echo "$DIFF_OUTPUT" | jq -e . >/dev/null 2>&1; then
             echo "Diff output was not valid JSON."
             exit 0
           fi
 
-          # Extract removed CVEs
           CVE_LIST_JSON="$(echo "$DIFF_OUTPUT" | jq -c '[.vulnerabilities.removed[]? | .id]')"
           echo "CVE_LIST=$CVE_LIST_JSON" >> $GITHUB_ENV
 
