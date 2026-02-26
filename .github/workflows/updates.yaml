@@ -120,7 +120,7 @@ jobs:
           echo "Running chainctl images diff..."
 
           set +e
-          DIFF_OUTPUT="$(chainctl images diff -v "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" --output json 2>&1)"
+          DIFF_OUTPUT="$(chainctl images diff "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" --output json 2>&1)"
           RC=$?
           set -e
 
