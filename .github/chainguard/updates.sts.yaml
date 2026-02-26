@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 issuer: https://token.actions.githubusercontent.com
-subject_pattern: repo:chainguard-dev/auto-deploy-demo:.*
+subject_pattern: repo:chainguard-demo/auto-deploy-demo:.*
 claim_pattern:
-  job_workflow_ref: chainguard-dev/auto-deploy-demo/.github/workflows/updates.yaml@.*
+  job_workflow_ref: chainguard-demo/auto-deploy-demo/.github/workflows/updates.yaml@.*
 
 permissions:
   contents: write

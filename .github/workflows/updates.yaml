@@ -135,7 +135,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
         run: |
-          ORGANIZATION="chainguard-dev"
+          ORGANIZATION="chainguard-demo"
           REPOSITORY="auto-deploy-demo"
           
           echo "Retrieving all analysis results in $ORGANIZATION/$REPOSITORY"
