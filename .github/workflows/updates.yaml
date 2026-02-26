@@ -73,12 +73,17 @@ jobs:
       - name: Get latest unique tag
         id: get_latest_unique_tag
         run: |
-          LATEST_UNIQUE_TAG="$(crane ls "${{ env.REDIS_IMAGE }}" \
-            | grep -E '^[^ ]+-[0-9]{12}$' \
-            | grep -v '^latest$' \
-            | grep -v '\-dev$' \
-            | sort -Vr \
-            | head -n 1)"
+          set -euo pipefail
+
+          set +o pipefail
+          LATEST_UNIQUE_TAG="$(
+            crane ls "${{ env.REDIS_IMAGE }}" \
+              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+-[0-9]{12}$' \
+              | sort -Vr \
+              | head -n 1
+          )"
+          set -o pipefail
+
           echo "LATEST_UNIQUE_TAG=$LATEST_UNIQUE_TAG" >> "$GITHUB_ENV"
           echo "Found LATEST_UNIQUE_TAG=$LATEST_UNIQUE_TAG"
 
@@ -98,13 +103,17 @@ jobs:
         id: get_previous_unique_tag
         run: |
           set -euo pipefail
-          TAGS="$(crane ls "${{ env.REDIS_IMAGE }}" \
-            | grep -E '^[^ ]+-[0-9]{12}$' \
-            | grep -v '^latest$' \
-            | grep -v '\-dev$' \
-            | sort -Vr)"
 
-          PREVIOUS_UNIQUE_TAG="$(echo "$TAGS" | head -n 2 | tail -n 1)"
+          set +o pipefail
+          PREVIOUS_UNIQUE_TAG="$(
+            crane ls "${{ env.REDIS_IMAGE }}" \
+              | grep -E '^[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+-[0-9]{12}$' \
+              | sort -Vr \
+              | head -n 2 \
+              | tail -n 1
+          )"
+          set -o pipefail
+
           echo "PREVIOUS_UNIQUE_TAG=$PREVIOUS_UNIQUE_TAG" >> "$GITHUB_ENV"
           echo "Found PREVIOUS_UNIQUE_TAG=$PREVIOUS_UNIQUE_TAG"
 
