@@ -195,6 +195,54 @@ jobs:
           echo "Wrote PR_BODY.md:"
           sed -n '1,200p' PR_BODY.md
 
+      - name: Rebuild PR body using Grype comparison (adds package/fix info)
+        if: env.FIX_CVE == 'true'
+        run: |
+          set -euo pipefail
+
+          OLD="${{ env.OLD_IMAGE }}"
+          NEW="${{ env.NEW_IMAGE }}"
+
+          grype "$OLD" -o json > grype-old.json
+          grype "$NEW" -o json > grype-new.json
+
+          jq -r '
+            .matches[]
+            | {
+                id: .vulnerability.id,
+                severity: .vulnerability.severity,
+                pkg: .artifact.name,
+                installed: (.artifact.version // ""),
+                fixed: (.vulnerability.fix.versions[0] // .vulnerability.fix.version // "")
+              }
+            | "\(.id)\t\(.pkg)\t\(.installed)\t\(.fixed)\t\(.severity)"
+          ' grype-old.json | sort -u > old.tsv
+
+          jq -r '
+            .matches[]
+            | "\(.vulnerability.id)\t\(.artifact.name)\t\(.artifact.version)"
+          ' grype-new.json | sort -u > new.keys
+
+          awk -F'\t' 'NR==FNR {k[$0]=1; next} {key=$1"\t"$2"\t"$3; if (!k[key]) print $0}' new.keys old.tsv > removed.tsv || true
+
+          {
+            echo "# CVE Fix Summary"
+            echo
+            echo "**OLD_IMAGE:** \`$OLD\`"
+            echo "**NEW_IMAGE:** \`$NEW\`"
+            echo
+            echo "## Removed Vulnerabilities"
+            echo
+
+            if [ ! -s removed.tsv ]; then
+              echo "_No removed vulnerabilities detected._"
+            else
+              echo "| Vulnerability | Package | Installed | Fixed in | Severity |"
+              echo "|---|---|---|---|---|"
+              awk -F'\t' '{printf("| `%s` | `%s` | `%s` | `%s` | **%s** |\n",$1,$2,$3,($4==""?"(unknown)":$4),$5)}' removed.tsv
+            fi
+          } > PR_BODY.md
+
       - name: Scan new image with Grype + append summary
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
         run: |
