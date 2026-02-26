@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
-      security-events: write
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
       contents: write
       packages: write
       id-token: write
@@ -37,13 +37,13 @@ jobs:
         uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
           cache: false
-
+      
       - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts
         with:
           scope: chainguard-demo/auto-deploy-demo
           identity: updates
-
+          
       - name: Install Crane
         run: go install github.com/google/go-containerregistry/cmd/crane@latest
 
@@ -54,12 +54,12 @@ jobs:
         
       - name: Install Cosign
         uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
-
+      
       - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262 # v0.2.4
         with:
           identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
-
-      - name: Auth to Registry
+        
+      - name: 'Auth to Registry'
         run: |
           chainctl auth configure-docker
 
