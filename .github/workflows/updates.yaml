@@ -117,10 +117,10 @@ jobs:
           echo "PREVIOUS_UNIQUE_TAG=$PREVIOUS_UNIQUE_TAG" >> "$GITHUB_ENV"
           echo "Found PREVIOUS_UNIQUE_TAG=$PREVIOUS_UNIQUE_TAG"
 
-      - name: Set OLD_IMAGE and NEW_IMAGE (previous -> latest)
+      - name: Set OLD_IMAGE and NEW_IMAGE (pinned -> latest)
         if: env.UNIQUE_TAGS_CHANGED == 'true'
         run: |
-          echo "OLD_IMAGE=${{ env.REDIS_IMAGE }}:${{ env.PREVIOUS_UNIQUE_TAG }}" >> "$GITHUB_ENV"
+          echo "OLD_IMAGE=${{ env.REDIS_IMAGE }}:${{ env.CURRENT_UNIQUE_TAG }}" >> "$GITHUB_ENV"
           echo "NEW_IMAGE=${{ env.REDIS_IMAGE }}:${{ env.LATEST_UNIQUE_TAG }}" >> "$GITHUB_ENV"
 
       - name: Cosign Verify NEW_IMAGE
