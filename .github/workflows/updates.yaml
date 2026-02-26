@@ -157,9 +157,19 @@ jobs:
       - name: Scan New Image with Grype
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
         run: |
-          grype $NEW_IMAGE -o sarif > grype-results.sarif
-          SARIF_SUMMARY=$(grype $NEW_IMAGE 2>&1 | tee)
-          echo "SARIF_SUMMARY=${SARIF_SUMMARY}" >> $GITHUB_ENV
+          set -euo pipefail
+
+          grype "${{ env.NEW_IMAGE }}" -o sarif > grype-results.sarif
+
+          # Capture a human-readable summary (multiline)
+          SARIF_SUMMARY="$(grype "${{ env.NEW_IMAGE }}" 2>&1 | tee /dev/stderr)"
+
+          # Write multiline env var safely
+          {
+            echo "SARIF_SUMMARY<<EOF"
+            echo "$SARIF_SUMMARY"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
 
       - name: Clear outdated SARIF
         if: env.FIX_CVE == 'true'
