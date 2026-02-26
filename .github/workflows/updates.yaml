@@ -11,6 +11,11 @@ env:
   SCAN_WITH_PRISMA_CLOUD: "true"
   OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
 
+  # Demo override (set to "false" to use the Helm+crane auto-detection path)
+  DEMO_OVERRIDE: "true"
+  DEMO_OLD_IMAGE: "cgr.dev/cgr-demo.com/python:3.12-202507181249"
+  DEMO_NEW_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.12"
+
 permissions: {}
 
 jobs:
@@ -37,33 +42,61 @@ jobs:
         uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
           cache: false
-      
+
       - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts
         with:
           scope: chainguard-demo/auto-deploy-demo
           identity: updates
-          
+
       - name: Install Crane
         run: go install github.com/google/go-containerregistry/cmd/crane@latest
 
       - name: Install Grype
-        if: ${{ env.SCAN_WITH_GRYPE == 'true' }}
+        if: env.SCAN_WITH_GRYPE == 'true'
         run: |
-          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-        
+          set -euo pipefail
+
+          # Prefer the official release artifact (avoids "latest" 404 issues)
+          GRYPE_VERSION="v0.87.0"
+          curl -sSfL "https://github.com/anchore/grype/releases/download/${GRYPE_VERSION}/grype_${GRYPE_VERSION#v}_linux_amd64.tar.gz" \
+            | tar -xz -C /usr/local/bin grype
+
+          grype version
+
       - name: Install Cosign
         uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
-      
+
       - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262 # v0.2.4
         with:
           identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
-        
-      - name: 'Auth to Registry'
+
+      - name: Auth to Registry
         run: |
           chainctl auth configure-docker
 
+      # --------------------------
+      # Demo override path
+      # --------------------------
+      - name: Demo override OLD/NEW images
+        if: env.DEMO_OVERRIDE == 'true'
+        run: |
+          echo "UNIQUE_TAGS_CHANGED=true" >> "$GITHUB_ENV"
+          echo "OLD_IMAGE=${{ env.DEMO_OLD_IMAGE }}" >> "$GITHUB_ENV"
+          echo "NEW_IMAGE=${{ env.DEMO_NEW_IMAGE }}" >> "$GITHUB_ENV"
+
+          # Keep these populated for downstream messaging/PR body; not used for the demo pair
+          echo "CURRENT_UNIQUE_TAG=demo" >> "$GITHUB_ENV"
+          echo "LATEST_UNIQUE_TAG=demo" >> "$GITHUB_ENV"
+
+          echo "Using DEMO_OLD_IMAGE=${{ env.DEMO_OLD_IMAGE }}"
+          echo "Using DEMO_NEW_IMAGE=${{ env.DEMO_NEW_IMAGE }}"
+
+      # --------------------------
+      # Normal auto-detection path
+      # --------------------------
       - name: Extract current pinned image.tag from Helm values
+        if: env.DEMO_OVERRIDE != 'true'
         id: extract_unique_tag
         run: |
           CURRENT_UNIQUE_TAG="$(yq '.image.tag' helm/redis/values.yaml)"
@@ -71,6 +104,7 @@ jobs:
           echo "Pinned CURRENT_UNIQUE_TAG=$CURRENT_UNIQUE_TAG"
 
       - name: Get latest unique tag
+        if: env.DEMO_OVERRIDE != 'true'
         id: get_latest_unique_tag
         run: |
           set -euo pipefail
@@ -79,6 +113,8 @@ jobs:
           LATEST_UNIQUE_TAG="$(
             crane ls "${{ env.REDIS_IMAGE }}" \
               | grep -E '^[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+-[0-9]{12}$' \
+              | grep -v -- '-dev$' \
+              | grep -v -- '^latest$' \
               | sort -Vr \
               | head -n 1
           )"
@@ -88,6 +124,7 @@ jobs:
           echo "Found LATEST_UNIQUE_TAG=$LATEST_UNIQUE_TAG"
 
       - name: Compare pinned vs latest tag
+        if: env.DEMO_OVERRIDE != 'true'
         id: compare_unique_tags
         run: |
           if [ "${{ env.CURRENT_UNIQUE_TAG }}" != "${{ env.LATEST_UNIQUE_TAG }}" ]; then
@@ -98,8 +135,8 @@ jobs:
             echo "No tag change."
           fi
 
-      - name: Get previous unique tag (for better delta)
-        if: env.UNIQUE_TAGS_CHANGED == 'true'
+      - name: Get previous unique tag
+        if: env.DEMO_OVERRIDE != 'true' && env.UNIQUE_TAGS_CHANGED == 'true'
         id: get_previous_unique_tag
         run: |
           set -euo pipefail
@@ -108,6 +145,8 @@ jobs:
           PREVIOUS_UNIQUE_TAG="$(
             crane ls "${{ env.REDIS_IMAGE }}" \
               | grep -E '^[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+-[0-9]{12}$' \
+              | grep -v -- '-dev$' \
+              | grep -v -- '^latest$' \
               | sort -Vr \
               | head -n 2 \
               | tail -n 1
@@ -118,11 +157,14 @@ jobs:
           echo "Found PREVIOUS_UNIQUE_TAG=$PREVIOUS_UNIQUE_TAG"
 
       - name: Set OLD_IMAGE and NEW_IMAGE (pinned -> latest)
-        if: env.UNIQUE_TAGS_CHANGED == 'true'
+        if: env.DEMO_OVERRIDE != 'true' && env.UNIQUE_TAGS_CHANGED == 'true'
         run: |
           echo "OLD_IMAGE=${{ env.REDIS_IMAGE }}:${{ env.CURRENT_UNIQUE_TAG }}" >> "$GITHUB_ENV"
           echo "NEW_IMAGE=${{ env.REDIS_IMAGE }}:${{ env.LATEST_UNIQUE_TAG }}" >> "$GITHUB_ENV"
 
+      # --------------------------
+      # Shared steps (demo + normal)
+      # --------------------------
       - name: Cosign Verify NEW_IMAGE
         if: env.UNIQUE_TAGS_CHANGED == 'true'
         id: cosign-verify
@@ -158,6 +200,7 @@ jobs:
             exit 0
           fi
 
+          # chainctl prints log lines + JSON. Grab the JSON object line(s).
           DIFF_JSON="$(echo "$DIFF_OUTPUT" | awk 'BEGIN{found=0} /^\{/{found=1} found{print}')"
 
           if [ -z "$DIFF_JSON" ]; then
@@ -186,6 +229,7 @@ jobs:
         run: |
           set -euo pipefail
           grype "${{ env.NEW_IMAGE }}" -o sarif > grype-results.sarif
+
           SARIF_SUMMARY="$(grype "${{ env.NEW_IMAGE }}" 2>&1 | tee /dev/stderr)"
           {
             echo "SARIF_SUMMARY<<EOF"
@@ -246,12 +290,12 @@ jobs:
           echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL" >> "$GITHUB_ENV"
 
       - name: Update Helm Values (pin to latest)
-        if: env.FIX_CVE == 'true'
+        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
         run: |
           yq -i ".image.tag = \"${{ env.LATEST_UNIQUE_TAG }}\"" helm/redis/values.yaml
 
       - name: Run git diff
-        if: env.FIX_CVE == 'true'
+        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
         id: create_pr_update
         run: |
           git diff --stat
@@ -264,9 +308,10 @@ jobs:
           fi
 
       - uses: chainguard-dev/actions/setup-gitsign@57cb0b7560d9b9b081c15ac5ef689f73f4dda03e # main branch as of 2024-08-02
+        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
 
       - name: Delete existing branch and PR
-        if: env.FIX_CVE == 'true'
+        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
         env:
           GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
         run: |
@@ -279,7 +324,7 @@ jobs:
           fi
 
       - name: Create Pull Request
-        if: env.FIX_CVE == 'true'
+        if: env.FIX_CVE == 'true' && env.DEMO_OVERRIDE != 'true'
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
         id: pull_request
         with:
