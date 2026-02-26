@@ -7,8 +7,8 @@ on:
 
 env:
   # Core demo images (set these to the pair you want to demonstrate)
-  DEMO_OLD_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.12"
-  DEMO_NEW_IMAGE: "cgr.dev/cgr-demo.com/python:3.12-202508222152"
+  DEMO_OLD_IMAGE: "cgr.dev/cgr-demo.com/python:3.12-202508222152"
+  DEMO_NEW_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.12"
 
   # Toggle scanners
   SCAN_WITH_GRYPE: "true"
@@ -174,7 +174,7 @@ jobs:
           echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL" >> "$GITHUB_ENV"
 
       # Always create a diff to PR when FIX_CVE=true
-      - name: Write demo results to repo
+      - name: Write CVE resolution results to repo
         if: env.FIX_CVE == 'true'
         run: |
           set -euo pipefail
