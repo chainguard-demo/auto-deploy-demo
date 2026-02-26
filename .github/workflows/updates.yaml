@@ -3,14 +3,14 @@ name: updates
 on:
   schedule:
     - cron: '0 * * * *'  # Hourly
-  workflow_dispatch: # Allows manual triggering 
+  workflow_dispatch:
 
 env:
   REDIS_IMAGE: "cgr.dev/cgr-demo.com/redis-server-bitnami"
   SCAN_WITH_GRYPE: "true"
   SCAN_WITH_PRISMA_CLOUD: "true"
   OBJC_DISABLE_INITIALIZE_FORK_SAFETY: "YES"
-  
+
 permissions: {}
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      security-events: write
       contents: write
       packages: write
       id-token: write
@@ -37,84 +37,103 @@ jobs:
         uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
           cache: false
-      
+
       - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts
         with:
           scope: chainguard-demo/auto-deploy-demo
           identity: updates
-          
+
       - name: Install Crane
         run: go install github.com/google/go-containerregistry/cmd/crane@latest
 
       - name: Install Grype
-        if: ${{ env.SCAN_WITH_GRYPE == 'true' }}
+        if: env.SCAN_WITH_GRYPE == 'true'
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-        
+
       - name: Install Cosign
         uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
-      
+
       - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262 # v0.2.4
         with:
           identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
-        
-      - name: 'Auth to Registry'
+
+      - name: Auth to Registry
         run: |
           chainctl auth configure-docker
-  
-      - name: Extract unique image.tag value
+
+      - name: Extract current pinned image.tag from Helm values
         id: extract_unique_tag
         run: |
-          CURRENT_UNIQUE_IMAGE=$(yq '.image.tag' helm/redis/values.yaml)
-          echo "Extracted Unique Tags: $CURRENT_UNIQUE_IMAGE"
-          echo "CURRENT_UNIQUE_TAG=$CURRENT_UNIQUE_IMAGE" >> $GITHUB_ENV
+          CURRENT_UNIQUE_TAG="$(yq '.image.tag' helm/redis/values.yaml)"
+          echo "CURRENT_UNIQUE_TAG=$CURRENT_UNIQUE_TAG" >> "$GITHUB_ENV"
+          echo "Pinned CURRENT_UNIQUE_TAG=$CURRENT_UNIQUE_TAG"
 
       - name: Get latest unique tag
-        id: get_current_unique_tag
+        id: get_latest_unique_tag
         run: |
-          LATEST_UNIQUE_TAG=$(crane ls ${{ env.REDIS_IMAGE }} | grep -E '^[^ ]+-[0-9]{12}$' | grep -v '^latest' | grep -v '\-dev' | sort -Vr | head -n 1)
-          echo "LATEST_UNIQUE_TAG=${LATEST_UNIQUE_TAG}" >> $GITHUB_ENV
+          LATEST_UNIQUE_TAG="$(crane ls "${{ env.REDIS_IMAGE }}" \
+            | grep -E '^[^ ]+-[0-9]{12}$' \
+            | grep -v '^latest$' \
+            | grep -v '\-dev$' \
+            | sort -Vr \
+            | head -n 1)"
+          echo "LATEST_UNIQUE_TAG=$LATEST_UNIQUE_TAG" >> "$GITHUB_ENV"
+          echo "Found LATEST_UNIQUE_TAG=$LATEST_UNIQUE_TAG"
 
-      - name: Compare unique tags
+      - name: Compare pinned vs latest tag
         id: compare_unique_tags
         run: |
-          echo "CURRENT_UNIQUE_TAG=${{ env.CURRENT_UNIQUE_TAG }}"
-          echo "LATEST_UNIQUE_TAG=${{ env.LATEST_UNIQUE_TAG }}"
           if [ "${{ env.CURRENT_UNIQUE_TAG }}" != "${{ env.LATEST_UNIQUE_TAG }}" ]; then
-            echo "UNIQUE_TAGS_CHANGED=true" >> $GITHUB_ENV
+            echo "UNIQUE_TAGS_CHANGED=true" >> "$GITHUB_ENV"
+            echo "Tag changed."
           else
-            echo "UNIQUE_TAGS_CHANGED=false" >> $GITHUB_ENV
+            echo "UNIQUE_TAGS_CHANGED=false" >> "$GITHUB_ENV"
+            echo "No tag change."
           fi
 
-      - name: Cosign Verify 
+      - name: Get previous unique tag (for better delta)
+        if: env.UNIQUE_TAGS_CHANGED == 'true'
+        id: get_previous_unique_tag
+        run: |
+          set -euo pipefail
+          TAGS="$(crane ls "${{ env.REDIS_IMAGE }}" \
+            | grep -E '^[^ ]+-[0-9]{12}$' \
+            | grep -v '^latest$' \
+            | grep -v '\-dev$' \
+            | sort -Vr)"
+
+          PREVIOUS_UNIQUE_TAG="$(echo "$TAGS" | head -n 2 | tail -n 1)"
+          echo "PREVIOUS_UNIQUE_TAG=$PREVIOUS_UNIQUE_TAG" >> "$GITHUB_ENV"
+          echo "Found PREVIOUS_UNIQUE_TAG=$PREVIOUS_UNIQUE_TAG"
+
+      - name: Set OLD_IMAGE and NEW_IMAGE (previous -> latest)
+        if: env.UNIQUE_TAGS_CHANGED == 'true'
+        run: |
+          echo "OLD_IMAGE=${{ env.REDIS_IMAGE }}:${{ env.PREVIOUS_UNIQUE_TAG }}" >> "$GITHUB_ENV"
+          echo "NEW_IMAGE=${{ env.REDIS_IMAGE }}:${{ env.LATEST_UNIQUE_TAG }}" >> "$GITHUB_ENV"
+
+      - name: Cosign Verify NEW_IMAGE
         if: env.UNIQUE_TAGS_CHANGED == 'true'
         id: cosign-verify
-        continue-on-error: false
         run: |
-          OLD_IMAGE="${{ env.REDIS_IMAGE }}:${{ env.CURRENT_UNIQUE_TAG }}"
-          NEW_IMAGE="${{ env.REDIS_IMAGE }}:${{ env.LATEST_UNIQUE_TAG }}"
-          
-          # Images will be signed by either the CATALOG_SYNCER or APKO_BUILDER identity in your organization.
-          # To find these values for your organization, you can view the "Assumed Identities" page in your organization settings.
           CATALOG_SYNCER="4cf15780a13a9b6576d8b357e6524554c8c12a18/c03040118377d88c"
           APKO_BUILDER="4cf15780a13a9b6576d8b357e6524554c8c12a18/ca93125e202f81f8"
+
           cosign verify \
             --certificate-oidc-issuer=https://issuer.enforce.dev \
             --certificate-identity-regexp="https://issuer.enforce.dev/(${CATALOG_SYNCER}|${APKO_BUILDER})" \
-          $NEW_IMAGE | jq
-          
-          echo "OLD_IMAGE=$OLD_IMAGE" >> $GITHUB_ENV
-          echo "NEW_IMAGE=$NEW_IMAGE" >> $GITHUB_ENV       
-          
-      - name: Run chainctl images diff
+            "${{ env.NEW_IMAGE }}" | jq
+
+      - name: Run chainctl images diff (OLD_IMAGE -> NEW_IMAGE)
         if: env.UNIQUE_TAGS_CHANGED == 'true'
         id: diff_vulnerabilities
         run: |
           set -euo pipefail
 
-          echo "CVE_LIST=[]" >> $GITHUB_ENV
-          echo "FIX_CVE=false" >> $GITHUB_ENV
+          echo "CVE_LIST=[]" >> "$GITHUB_ENV"
+          echo "FIX_CVE=false" >> "$GITHUB_ENV"
 
           echo "Running chainctl images diff..."
           set +e
@@ -130,7 +149,6 @@ jobs:
             exit 0
           fi
 
-          # chainctl prints log lines + JSON. Grab the JSON object line(s).
           DIFF_JSON="$(echo "$DIFF_OUTPUT" | awk 'BEGIN{found=0} /^\{/{found=1} found{print}')"
 
           if [ -z "$DIFF_JSON" ]; then
@@ -145,26 +163,21 @@ jobs:
           fi
 
           CVE_LIST_JSON="$(echo "$DIFF_JSON" | jq -c '[.vulnerabilities.removed[]? | .id]')"
-          echo "CVE_LIST=$CVE_LIST_JSON" >> $GITHUB_ENV
+          echo "CVE_LIST=$CVE_LIST_JSON" >> "$GITHUB_ENV"
 
           if [ "$(echo "$CVE_LIST_JSON" | jq 'length')" -gt 0 ]; then
             echo "Found CVE fixes: $CVE_LIST_JSON"
-            echo "FIX_CVE=true" >> $GITHUB_ENV
+            echo "FIX_CVE=true" >> "$GITHUB_ENV"
           else
             echo "No CVE fixes available"
           fi
-    
-      - name: Scan New Image with Grype
+
+      - name: Scan NEW_IMAGE with Grype
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
         run: |
           set -euo pipefail
-
           grype "${{ env.NEW_IMAGE }}" -o sarif > grype-results.sarif
-
-          # Capture a human-readable summary (multiline)
           SARIF_SUMMARY="$(grype "${{ env.NEW_IMAGE }}" 2>&1 | tee /dev/stderr)"
-
-          # Write multiline env var safely
           {
             echo "SARIF_SUMMARY<<EOF"
             echo "$SARIF_SUMMARY"
@@ -187,7 +200,7 @@ jobs:
             echo "Deleting analysis result $analysis_id"
             gh api -X DELETE "repos/$ORGANIZATION/$REPOSITORY/code-scanning/analyses/$analysis_id?confirm_delete=true" --silent
           done
-      
+
       - name: Upload new Grype SARIF results
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
         uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5 # v3.28.11
@@ -197,9 +210,8 @@ jobs:
       - name: Pre-pull docker image for Prisma Cloud scan
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
         run: |
-          # Prisma Cloud can only see the image if it's pre-pulled locally
-            docker pull $NEW_IMAGE
-      
+          docker pull "${{ env.NEW_IMAGE }}"
+
       - name: Prisma Cloud image scan
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
         id: prismascan
@@ -209,7 +221,7 @@ jobs:
           pcc_user: ${{ secrets.PCC_USER }}
           pcc_pass: ${{ secrets.PCC_PASS }}
           image_name: "${{ env.NEW_IMAGE }}"
-      
+
       - name: Upload new Prisma Cloud SARIF file
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
         uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5 # v3.28.11
@@ -222,35 +234,33 @@ jobs:
         run: |
           results_file=${{ steps.prismascan.outputs.results_file }}
           PRISMA_CLOUD_URL=$(cat "$results_file" | jq -r '.consoleURL')
-          echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL"
-          echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL" >> $GITHUB_ENV
-          
-      - name: Update Helm Values
+          echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL" >> "$GITHUB_ENV"
+
+      - name: Update Helm Values (pin to latest)
         if: env.FIX_CVE == 'true'
-        shell: bash
-        run: yq -i ".image.tag = \"${{ env.LATEST_UNIQUE_TAG }}\"" helm/redis/values.yaml
-      
+        run: |
+          yq -i ".image.tag = \"${{ env.LATEST_UNIQUE_TAG }}\"" helm/redis/values.yaml
+
       - name: Run git diff
         if: env.FIX_CVE == 'true'
         id: create_pr_update
-        shell: bash
         run: |
           git diff --stat
-          echo "create_pr_update=false" >> $GITHUB_OUTPUT
+          echo "create_pr_update=false" >> "$GITHUB_OUTPUT"
           if [[ $(git diff --stat) != '' ]]; then
-            echo "create_pr_update=true" >> $GITHUB_OUTPUT
-            echo "diff<<EOF" >> "${GITHUB_OUTPUT}"
-            git diff >> "${GITHUB_OUTPUT}"
-            echo "EOF" >> "${GITHUB_OUTPUT}"
+            echo "create_pr_update=true" >> "$GITHUB_OUTPUT"
+            echo "diff<<EOF" >> "$GITHUB_OUTPUT"
+            git diff >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
           fi
-      
+
       - uses: chainguard-dev/actions/setup-gitsign@57cb0b7560d9b9b081c15ac5ef689f73f4dda03e # main branch as of 2024-08-02
-      
+
       - name: Delete existing branch and PR
         if: env.FIX_CVE == 'true'
         env:
           GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
-        run: |          
+        run: |
           PR_NUMBER=$(gh pr list --head "apply-cve-fix" --json number --jq '.[0].number')
           if [ -n "$PR_NUMBER" ]; then
             echo "Closing PR #$PR_NUMBER"
@@ -258,7 +268,7 @@ jobs:
           else
             echo "No PR found for branch 'apply-cve-fix'"
           fi
-    
+
       - name: Create Pull Request
         if: env.FIX_CVE == 'true'
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
@@ -271,7 +281,7 @@ jobs:
             <details>
             <summary>Grype Scan Summary after updating to ${{ env.LATEST_UNIQUE_TAG }}</summary>
 
-            ```json
+            ```text
             ${{ env.SARIF_SUMMARY }}
             ```
             </details>
