@@ -191,7 +191,7 @@ jobs:
           } > demo-results/last-run.txt
 
       - name: Create Pull Request
-        if: env.FIX_CVE == 'true' && steps.create_pr_update.outputs.create_pr_update == 'true'
+        if: env.FIX_CVE == 'true'
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
         with:
           token: ${{ steps.octo-sts.outputs.token }}
@@ -216,15 +216,6 @@ jobs:
 
             ## Prisma Cloud Console Link
             ${{ env.PRISMA_CLOUD_URL }}
-
-            ## Changes
-            <details>
-            <summary>File Changes</summary>
-
-            ```diff
-            ${{ steps.create_pr_update.outputs.diff }}
-            ```
-            </details>
           labels: automated pr, cve, patch
           branch: "apply-cve-fix"
           delete-branch: true
