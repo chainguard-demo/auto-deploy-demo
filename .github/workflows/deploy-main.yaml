@@ -1,0 +1,77 @@
+name: deploy-main
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  DEPLOY_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.12"
+  NAMESPACE: "demo"
+  APP_NAME: "python-demo"
+
+permissions: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # Option A: kubectl with a kubeconfig stored as a secret
+      - name: Setup kubeconfig
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+          kubectl version --client
+          kubectl cluster-info
+
+      - name: Deploy manifest (simple)
+        run: |
+          set -euo pipefail
+
+          kubectl create namespace "${{ env.NAMESPACE }}" --dry-run=client -o yaml | kubectl apply -f -
+
+          cat <<'YAML' | kubectl apply -n "${{ env.NAMESPACE }}" -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: python-demo
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: python-demo
+            template:
+              metadata:
+                labels:
+                  app: python-demo
+              spec:
+                containers:
+                - name: python
+                  image: ${DEPLOY_IMAGE}
+                  command: ["python"]
+                  args: ["-m", "http.server", "8080"]
+                  ports:
+                  - containerPort: 8080
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: python-demo
+          spec:
+            selector:
+              app: python-demo
+            ports:
+            - port: 80
+              targetPort: 8080
+            type: ClusterIP
+          YAML
+
+          kubectl rollout status deploy/python-demo -n "${{ env.NAMESPACE }}" --timeout=180s
