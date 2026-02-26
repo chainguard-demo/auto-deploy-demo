@@ -174,14 +174,14 @@ jobs:
       - name: Clear outdated SARIF
         if: env.FIX_CVE == 'true'
         env:
-          GH_TOKEN: ${{ steps.octo-sts.outputs.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           ORGANIZATION="chainguard-demo"
           REPOSITORY="auto-deploy-demo"
-          
+
           echo "Retrieving all analysis results in $ORGANIZATION/$REPOSITORY"
           ANALYSIS_IDS=$(gh api -X GET "repos/$ORGANIZATION/$REPOSITORY/code-scanning/analyses?per_page=100&direction=asc" --paginate --jq='.[] | select(.deletable==true) | .id')
-          
+
           for analysis_id in ${ANALYSIS_IDS}
           do
             echo "Deleting analysis result $analysis_id"
