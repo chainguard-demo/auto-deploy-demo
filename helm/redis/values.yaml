@@ -9,4 +9,4 @@ master:
 image:
   registry: cgr.dev
   repository: cgr-demo.com/redis-server-bitnami
-  tag: 7.0.13-r3-202310161618
+  tag: 8.2.0-r0-202508162146
