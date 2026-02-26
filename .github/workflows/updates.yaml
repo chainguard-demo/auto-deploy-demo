@@ -133,7 +133,6 @@ jobs:
             echo "FIX_CVE=true" >> $GITHUB_ENV
           else
             echo "No CVE fixes available"
-          fiFIX_CVE=false" >> $GITHUB_ENV
           fi
     
       - name: Scan New Image with Grype
