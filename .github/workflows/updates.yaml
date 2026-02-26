@@ -86,17 +86,19 @@ jobs:
             --certificate-identity-regexp="https://issuer.enforce.dev/(${CATALOG_SYNCER}|${APKO_BUILDER})" \
             "${{ env.NEW_IMAGE }}" | jq
 
-      - name: Run chainctl images diff to open PR for new image with vuln fixes
+      - name: Run chainctl images diff + build PR summary
         id: diff_vulnerabilities
         run: |
           set -euo pipefail
 
+          OLD_IMAGE="${{ env.OLD_IMAGE }}"
+          NEW_IMAGE="${{ env.NEW_IMAGE }}"
+
           echo "FIX_CVE=false" >> "$GITHUB_ENV"
-          echo "CVE_LIST=[]" >> "$GITHUB_ENV"
 
           echo "Running chainctl images diff..."
           set +e
-          DIFF_OUTPUT="$(chainctl images diff "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" --output json 2>&1)"
+          DIFF_OUTPUT="$(chainctl images diff "$OLD_IMAGE" "$NEW_IMAGE" --output json 2>&1)"
           RC=$?
           set -e
 
@@ -104,40 +106,109 @@ jobs:
           echo "$DIFF_OUTPUT"
 
           if [ $RC -ne 0 ]; then
-            echo "chainctl images diff failed; skipping demo PR."
+            echo "chainctl images diff failed; skipping."
             exit 0
           fi
 
-          # chainctl prints log lines + JSON; extract JSON starting at first "{"
+          # Extract JSON from mixed log+json output
           DIFF_JSON="$(echo "$DIFF_OUTPUT" | awk 'BEGIN{found=0} /^\{/{found=1} found{print}')"
 
           if ! echo "$DIFF_JSON" | jq -e . >/dev/null 2>&1; then
-            echo "Diff output was not valid JSON; skipping demo PR."
+            echo "Diff output was not valid JSON; skipping."
             exit 0
           fi
 
-          CVE_LIST_JSON="$(echo "$DIFF_JSON" | jq -c '[.vulnerabilities.removed[]? | .id]')"
-          echo "CVE_LIST=$CVE_LIST_JSON" >> "$GITHUB_ENV"
-
-          if [ "$(echo "$CVE_LIST_JSON" | jq 'length')" -gt 0 ]; then
-            echo "Found removed vulns: $CVE_LIST_JSON"
+          # Determine whether any vulnerabilities were removed
+          REMOVED_COUNT="$(echo "$DIFF_JSON" | jq -r '(.vulnerabilities.removed // []) | length')"
+          if [ "$REMOVED_COUNT" -gt 0 ]; then
             echo "FIX_CVE=true" >> "$GITHUB_ENV"
           else
-            echo "No removed vulns; not opening PR."
+            echo "No removed vulnerabilities; not opening PR."
+            exit 0
           fi
 
-      - name: Scan new image with Grype
+          # Save diff json for later steps if you want
+          echo "$DIFF_JSON" > diff.json
+
+          # Build a readable Markdown summary for the PR
+          {
+            echo "## Image update"
+            echo ""
+            echo "**OLD_IMAGE:** \`$OLD_IMAGE\`"
+            echo "**NEW_IMAGE:** \`$NEW_IMAGE\`"
+            echo ""
+
+            echo "## Packages changed"
+            echo ""
+            echo "| Package | Old | New |"
+            echo "|---|---|---|"
+            echo "$DIFF_JSON" | jq -r '
+              (.packages.changed // [])
+              | sort_by(.name)
+              | .[]
+              | "| \(.name) | \(.previous.version // "-") | \(.current.version // "-") |"
+            ' || true
+            echo ""
+
+            echo "## Vulnerabilities removed"
+            echo ""
+            for sev in Critical High Medium Low Unknown; do
+              COUNT="$(echo "$DIFF_JSON" | jq -r --arg s "$sev" '(.vulnerabilities.removed // []) | map(select(.severity == $s)) | length')"
+              if [ "$COUNT" -gt 0 ]; then
+                echo "### $sev ($COUNT)"
+                echo ""
+                echo "| ID | Package | Installed | Fixed in |"
+                echo "|---|---|---|---|"
+                echo "$DIFF_JSON" | jq -r --arg s "$sev" '
+                  (.vulnerabilities.removed // [])
+                  | map(select(.severity == $s))
+                  | sort_by(.id)
+                  | .[]
+                  | "| \(.id) | \(.package.name // "-") | \(.package.installedVersion // "-") | \(.package.fixedVersion // "-") |"
+                ' || true
+                echo ""
+              fi
+            done
+
+            # If severities are missing/unexpected, still show everything
+            OTHER_COUNT="$(echo "$DIFF_JSON" | jq -r '
+              (.vulnerabilities.removed // [])
+              | map(select((.severity // "") | IN("Critical","High","Medium","Low","Unknown") | not))
+              | length
+            ')"
+            if [ "$OTHER_COUNT" -gt 0 ]; then
+              echo "### Other ($OTHER_COUNT)"
+              echo ""
+              echo "| ID | Severity | Package | Installed | Fixed in |"
+              echo "|---|---|---|---|---|"
+              echo "$DIFF_JSON" | jq -r '
+                (.vulnerabilities.removed // [])
+                | map(select((.severity // "") | IN("Critical","High","Medium","Low","Unknown") | not))
+                | sort_by(.id)
+                | .[]
+                | "| \(.id) | \(.severity // "-") | \(.package.name // "-") | \(.package.installedVersion // "-") | \(.package.fixedVersion // "-") |"
+              ' || true
+              echo ""
+            fi
+          } > PR_BODY.md
+
+          echo "Wrote PR_BODY.md:"
+          sed -n '1,200p' PR_BODY.md
+
+      - name: Scan new image with Grype + append summary
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
         run: |
           set -euo pipefail
           grype "${{ env.NEW_IMAGE }}" -o sarif > grype-results.sarif
 
-          SUMMARY="$(grype "${{ env.NEW_IMAGE }}" 2>&1 | head -n 80)"
           {
-            echo "SARIF_SUMMARY<<EOF"
-            echo "$SUMMARY"
-            echo "EOF"
-          } >> "$GITHUB_ENV"
+            echo ""
+            echo "## Grype summary (top findings)"
+            echo ""
+            echo '```text'
+            grype "${{ env.NEW_IMAGE }}" 2>&1 | head -n 120
+            echo '```'
+          } >> PR_BODY.md
 
       - name: Upload Grype SARIF results
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
@@ -173,6 +244,17 @@ jobs:
           PRISMA_CLOUD_URL="$(cat "$results_file" | jq -r '.consoleURL')"
           echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL" >> "$GITHUB_ENV"
 
+      - name: Append Prisma link to PR body
+        if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
+        run: |
+          set -euo pipefail
+          {
+            echo ""
+            echo "## Prisma Cloud"
+            echo ""
+            echo "${{ env.PRISMA_CLOUD_URL }}"
+          } >> PR_BODY.md
+
       # Always create a diff to PR when FIX_CVE=true
             # Always create a diff to PR when FIX_CVE=true
       - name: Write CVE resolution results to repo
@@ -181,14 +263,14 @@ jobs:
           set -euo pipefail
           mkdir -p demo-results
 
-          {
-            echo "timestamp=$(date -u +%FT%TZ)"
-            echo "run_id=${{ github.run_id }}"
-            echo "old_image=${{ env.OLD_IMAGE }}"
-            echo "new_image=${{ env.NEW_IMAGE }}"
-            echo "cves_removed=${{ env.CVE_LIST }}"
-            echo "prisma_url=${{ env.PRISMA_CLOUD_URL }}"
-          } > demo-results/last-run.txt
+          # Copy the formatted PR body into the repo so there's always a diff
+          cp PR_BODY.md demo-results/last-run.md
+
+          # Force a guaranteed change (even if content repeats)
+          echo "" >> demo-results/last-run.md
+          echo "run_id=${{ github.run_id }}" >> demo-results/last-run.md
+
+          git add demo-results/last-run.md
 
       - name: Create Pull Request
         if: env.FIX_CVE == 'true'
@@ -197,25 +279,7 @@ jobs:
           token: ${{ steps.octo-sts.outputs.token }}
           commit-message: "Demo: record CVE fix results"
           title: "Demo: CVE fix detected for Python image"
-          body: |
-            **OLD_IMAGE:** `${{ env.OLD_IMAGE }}`
-            **NEW_IMAGE:** `${{ env.NEW_IMAGE }}`
-
-            **Removed CVEs (chainctl images diff):**
-            ```json
-            ${{ env.CVE_LIST }}
-            ```
-
-            <details>
-            <summary>Grype Scan Summary</summary>
-
-            ```text
-            ${{ env.SARIF_SUMMARY }}
-            ```
-            </details>
-
-            ## Prisma Cloud Console Link
-            ${{ env.PRISMA_CLOUD_URL }}
+          body-path: PR_BODY.md
           labels: automated pr, cve, patch
           branch: "apply-cve-fix"
           delete-branch: true
