@@ -69,7 +69,7 @@ jobs:
       - name: Auth to Registry
         run: chainctl auth configure-docker
 
-      - name: Set OLD_IMAGE / NEW_IMAGE from demo inputs
+      - name: Current Image and New Image Provided by Chainguard SLA
         run: |
           echo "OLD_IMAGE=${{ env.DEMO_OLD_IMAGE }}" >> "$GITHUB_ENV"
           echo "NEW_IMAGE=${{ env.DEMO_NEW_IMAGE }}" >> "$GITHUB_ENV"
@@ -86,7 +86,7 @@ jobs:
             --certificate-identity-regexp="https://issuer.enforce.dev/(${CATALOG_SYNCER}|${APKO_BUILDER})" \
             "${{ env.NEW_IMAGE }}" | jq
 
-      - name: Run chainctl images diff to open PR for Vuln Fixes
+      - name: Run chainctl images diff to open PR for new image with vuln fixes
         id: diff_vulnerabilities
         run: |
           set -euo pipefail
@@ -192,14 +192,19 @@ jobs:
         id: create_pr_update
         run: |
           set -euo pipefail
-          git diff --stat
-          echo "create_pr_update=false" >> "$GITHUB_OUTPUT"
-          if [[ $(git diff --stat) != '' ]]; then
-            echo "create_pr_update=true" >> "$GITHUB_OUTPUT"
-            echo "diff<<EOF" >> "$GITHUB_OUTPUT"
-            git diff >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+
+          if git diff --quiet; then
+            echo "No diff detected"
+            echo "create_pr_update=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+
+          echo "Diff detected"
+          echo "create_pr_update=true" >> "$GITHUB_OUTPUT"
+
+          echo "diff<<EOF" >> "$GITHUB_OUTPUT"
+          git diff >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         if: env.FIX_CVE == 'true' && steps.create_pr_update.outputs.create_pr_update == 'true'
