@@ -203,9 +203,11 @@ jobs:
           OLD="${{ env.OLD_IMAGE }}"
           NEW="${{ env.NEW_IMAGE }}"
 
+          # Scan both images in JSON mode
           grype "$OLD" -o json > grype-old.json
           grype "$NEW" -o json > grype-new.json
 
+          # Normalize old scan into TSV: id, pkg, installed, fixed, severity
           jq -r '
             .matches[]
             | {
@@ -213,16 +215,22 @@ jobs:
                 severity: .vulnerability.severity,
                 pkg: .artifact.name,
                 installed: (.artifact.version // ""),
-                fixed: (.vulnerability.fix.versions[0] // .vulnerability.fix.version // "")
+                fixed: (
+                  .vulnerability.fix.versions[0]
+                  // .vulnerability.fix.version
+                  // ""
+                )
               }
             | "\(.id)\t\(.pkg)\t\(.installed)\t\(.fixed)\t\(.severity)"
           ' grype-old.json | sort -u > old.tsv
 
+          # Normalize new scan into key set: id, pkg, installed
           jq -r '
             .matches[]
             | "\(.vulnerability.id)\t\(.artifact.name)\t\(.artifact.version)"
           ' grype-new.json | sort -u > new.keys
 
+          # Removed = present in old but not in new
           awk -F'\t' 'NR==FNR {k[$0]=1; next} {key=$1"\t"$2"\t"$3; if (!k[key]) print $0}' new.keys old.tsv > removed.tsv || true
 
           {
@@ -236,10 +244,32 @@ jobs:
 
             if [ ! -s removed.tsv ]; then
               echo "_No removed vulnerabilities detected._"
+              echo
             else
               echo "| Vulnerability | Package | Installed | Fixed in | Severity |"
               echo "|---|---|---|---|---|"
-              awk -F'\t' '{printf("| `%s` | `%s` | `%s` | `%s` | **%s** |\n",$1,$2,$3,($4==""?"(unknown)":$4),$5)}' removed.tsv
+
+              # Sort by severity priority
+              awk -F'\t' '
+              function sev_rank(s) {
+                if (s=="Critical") return 1;
+                if (s=="High")     return 2;
+                if (s=="Medium")   return 3;
+                if (s=="Low")      return 4;
+                return 5;
+              }
+              {
+                print sev_rank($5) "|" $0
+              }
+              ' removed.tsv \
+              | sort -t'|' -k1,1n -k2,2 \
+              | cut -d'|' -f2- \
+              | awk -F'\t' '{
+                printf("| `%s` | `%s` | `%s` | `%s` | **%s** |\n",
+                  $1,$2,$3,($4==""?"(unknown)":$4),$5)
+              }'
+
+              echo
             fi
           } > PR_BODY.md
 
