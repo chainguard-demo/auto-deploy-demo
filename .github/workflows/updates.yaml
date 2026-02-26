@@ -113,19 +113,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Default values so downstream steps behave predictably
           echo "CVE_LIST=[]" >> $GITHUB_ENV
           echo "FIX_CVE=false" >> $GITHUB_ENV
 
           echo "Running chainctl images diff..."
-
           set +e
           DIFF_OUTPUT="$(chainctl images diff "${{ env.OLD_IMAGE }}" "${{ env.NEW_IMAGE }}" --output json 2>&1)"
           RC=$?
           set -e
 
           echo "chainctl exit code: $RC"
-          echo "chainctl output:"
           echo "$DIFF_OUTPUT"
 
           if [ $RC -ne 0 ]; then
@@ -133,12 +130,21 @@ jobs:
             exit 0
           fi
 
-          if ! echo "$DIFF_OUTPUT" | jq -e . >/dev/null 2>&1; then
-            echo "Diff output was not valid JSON."
+          # chainctl prints log lines + JSON. Grab the JSON object line(s).
+          DIFF_JSON="$(echo "$DIFF_OUTPUT" | awk 'BEGIN{found=0} /^\{/{found=1} found{print}')"
+
+          if [ -z "$DIFF_JSON" ]; then
+            echo "Could not extract JSON from chainctl output."
             exit 0
           fi
 
-          CVE_LIST_JSON="$(echo "$DIFF_OUTPUT" | jq -c '[.vulnerabilities.removed[]? | .id]')"
+          if ! echo "$DIFF_JSON" | jq -e . >/dev/null 2>&1; then
+            echo "Extracted content was not valid JSON:"
+            echo "$DIFF_JSON"
+            exit 0
+          fi
+
+          CVE_LIST_JSON="$(echo "$DIFF_JSON" | jq -c '[.vulnerabilities.removed[]? | .id]')"
           echo "CVE_LIST=$CVE_LIST_JSON" >> $GITHUB_ENV
 
           if [ "$(echo "$CVE_LIST_JSON" | jq 'length')" -gt 0 ]; then
