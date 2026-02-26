@@ -174,13 +174,16 @@ jobs:
           echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL" >> "$GITHUB_ENV"
 
       # Always create a diff to PR when FIX_CVE=true
+            # Always create a diff to PR when FIX_CVE=true
       - name: Write CVE resolution results to repo
         if: env.FIX_CVE == 'true'
         run: |
           set -euo pipefail
           mkdir -p demo-results
+
           {
             echo "timestamp=$(date -u +%FT%TZ)"
+            echo "run_id=${{ github.run_id }}"
             echo "old_image=${{ env.OLD_IMAGE }}"
             echo "new_image=${{ env.NEW_IMAGE }}"
             echo "cves_removed=${{ env.CVE_LIST }}"
