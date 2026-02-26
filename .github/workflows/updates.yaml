@@ -48,10 +48,10 @@ jobs:
         run: go install github.com/google/go-containerregistry/cmd/crane@latest
 
       - name: Install Grype
-        if: env.SCAN_WITH_GRYPE == 'true'
+        if: ${{ env.SCAN_WITH_GRYPE == 'true' }}
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-
+        
       - name: Install Cosign
         uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
 
