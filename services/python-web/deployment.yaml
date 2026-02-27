@@ -15,12 +15,14 @@ spec:
       labels:
         app: python-demo
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
         - name: python-demo
-          image: 123456789012.dkr.ecr.us-west-2.amazonaws.com/python-openssl:latest
-          imagePullPolicy: Always
+          image: 452336408843.dkr.ecr.us-west-2.amazonaws.com/python-openssl@sha256:34c785f624adeaa2be665f99a3b4c7ba8d0b6a25aba2610490a424cb91f74122
           ports:
             - containerPort: 8080
+          command: ["python", "-m", "http.server", "8080"]
+          imagePullPolicy: IfNotPresent
           resources:
             requests:
               cpu: "100m"
@@ -28,18 +30,29 @@ spec:
             limits:
               cpu: "500m"
               memory: "256Mi"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 5
+            timeoutSeconds: 2
           readinessProbe:
             httpGet:
               path: /
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /
               port: 8080
             initialDelaySeconds: 15
             periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
 
 ---
 apiVersion: v1
@@ -52,6 +65,7 @@ spec:
   selector:
     app: python-demo
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 8080
       protocol: TCP
