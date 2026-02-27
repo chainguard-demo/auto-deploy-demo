@@ -1,0 +1,35 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-signed-and-attested-python-openssl
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+    - name: verify-python-openssl
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+                - Deployment
+                - StatefulSet
+                - DaemonSet
+                - Job
+                - CronJob
+      verifyImages:
+        - imageReferences:
+            - "452336408843.dkr.ecr.us-west-2.amazonaws.com/python-openssl*"
+          required: true
+          attestors:
+            - entries:
+                - keyless:
+                    issuer: "https://token.actions.githubusercontent.com"
+                    subjectRegExp: "^https://github.com/chainguard-demo/auto-deploy-demo/.github/workflows/.*@refs/(heads/main|pull/[0-9]+/merge)$"
+          attestations:
+            - type: "https://in-toto.io/Statement/v1"
+              attestors:
+                - entries:
+                    - keyless:
+                        issuer: "https://token.actions.githubusercontent.com"
+                        subjectRegExp: "^https://github.com/chainguard-demo/auto-deploy-demo/.github/workflows/.*@refs/(heads/main|pull/[0-9]+/merge)$"
