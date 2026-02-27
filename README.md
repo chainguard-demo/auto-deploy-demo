@@ -1,28 +1,85 @@
-# Auto Update a Helm Deployment
+## CVE Fix and Auto-Deploy Demo
 
-* Monitor for new Chainguard Images in your dedicated registry
-* Verify integrity of the image by validating the digital signature with cosign
-* Use chainctl image diff to determine if the new image remediates a Critical or High CVE
-* Scan the image with grype and Prisma Cloud
-* Create a PR that:
-  * Updates Helm with new image
-  * Lists the CVEs that will be remediated with the change
-  * Attaches the scan result
-  * Uses Chainguard Unique Tags for consistency and atomic rollbacks
-* Deploy to a Kubernetes Cluster once PR is merged
-* Adheres to security least privilege by using short-lived ephemeral tokens to:
-  * Authenticate to the Chainguard Registry using an [assumed identity](https://edu.chainguard.dev/chainguard/administration/iam-organizations/assumable-ids/) (using the ambient creds of each workflow invocation)
-  * Authenticate to GitHub (using [octo-sts](https://www.chainguard.dev/unchained/the-end-of-github-pats-you-cant-leak-what-you-dont-have) in place of a long-lived PAT) 
-  * Signs commits using [Sigstore/gitsign](https://docs.sigstore.dev/cosign/signing/gitsign/)
- 
-## Usage
+This demo walks through a full software supply chain flow:
 
-* Run the scan workflow will populate the scan data for the very old redis-server-bitnami image: ![image](https://github.com/user-attachments/assets/ebdaca95-efbd-4fe2-a7f1-3b61d782466a)
-* Run the updates workflow to generate a PR and updated scan results for both Grype and PrismaCloud ![image](https://github.com/user-attachments/assets/35d81334-3f2c-4263-9e1a-6f6f2dc6f145)
-* Merge
-* Profit ![image](https://github.com/user-attachments/assets/c0c7b2ef-9963-44d0-981c-db87bf1ce900) ![image](https://github.com/user-attachments/assets/3b8e1090-1520-41de-9b2e-7f36b0a464f0)
+1.  Build an image with an outdated OpenSSL (contains Critical CVEs) in Python 3.12
+2.	Scan the image and detect vulnerabilities
+3.	Attempt deployment → blocked by Kyverno
+4.	Rebuild with patched base image
+5.	Sign the image with Cosign
+6.	Attach vulnerability attestation
+7.	Deploy again → admitted by policy
 
-## Looking for a push example?
- 
-* [https://github.com/some-natalie/image-ingest-script/blob/main/.github/workflows/ingest.yaml](https://github.com/some-natalie/image-ingest-script/blob/main/.github/workflows/ingest.yaml)
+![Alt Text](assets/pr-image.png)
 
+### updates.yaml 
+
+Steps (in order):
+
+1) Harden the runner (Audit all outbound calls)
+2) Checkout repository
+3) Setup Go environment
+4) Mint GitHub token for PR creation (Octo STS)
+5) Install Crane
+6) Install Grype (pinned) [conditional: SCAN_WITH_GRYPE == 'true']
+7) Install Cosign
+8) Install chainctl
+9) Auth to Registry (Chainguard)
+10) Set OLD_IMAGE / NEW_IMAGE from env
+11) Cosign verify new image signature
+12) Run chainctl images diff + build PR summary
+   • Prints first 200 lines of PR_BODY.md
+13) Rebuild PR body using Grype comparison (adds package/fix info)
+14) Scan new image with Grype + append summary
+15) Upload Grype SARIF results
+16) Pre-pull docker image for Prisma Cloud scan
+17) Prisma Cloud image scan
+18) Upload Prisma Cloud SARIF file
+19) Extract Prisma Cloud Console Link
+20) Append Prisma link to PR body
+21) Write CVE resolution results to repo (force a diff)
+22) Create Pull Request
+   [conditional: FIX_CVE == 'true']
+   • peter-evans/create-pull-request (pinned SHA)
+   • Uses token from octo-sts step
+   • commit-message: "Demo: record CVE fix results"
+   • title: "Demo: CVE fix detected for Python image"
+   • body-path: PR_BODY.md
+   • labels: automated pr, cve, patch
+   • branch: apply-cve-fix
+   • delete-branch: true
+
+### deploy-main.yaml
+
+Trigger: pull_request closed
+
+#### Job 1: push-image (runs only if PR merged AND head.ref == apply-cve-fix)
+
+1) Checkout repo — actions/checkout@v4
+2) Setup Go — actions/setup-go (cache: false)
+3) Configure AWS credentials (OIDC) — aws-actions/configure-aws-credentials@v4
+4) Login to ECR — aws-actions/amazon-ecr-login@v2
+5) Install crane — go install crane@latest; add $HOME/go/bin to PATH; crane version
+6) Install Cosign — sigstore/cosign-installer
+7) Install Grype (pinned) — download/install v0.91.2; grype version
+8) Setup chainctl — chainguard-dev/setup-chainctl
+9) Auth to Chainguard registry — chainctl auth configure-docker
+10) Read source image from repo — cat demo-results/new-image.txt -> SRC
+11) Copy SRC to ECR + compute digest-pinned ref
+    - crane copy SRC <ecr>/<repo>:<github.sha>
+    - crane digest <ecr>/<repo>:<github.sha>
+    - output image=<ecr>/<repo>@sha256:<digest>
+12) Keyless sign ECR image — cosign sign --yes <digest-pinned-image> (COSIGN_EXPERIMENTAL=1)
+13) Attest vulnerability predicate — grype <image> -o json; jq -> vuln-predicate.json; cosign attest --predicate vuln-predicate.json <image>
+
+#### Job 2: deploy (needs push-image; runs only if push-image succeeded)
+
+1) Checkout repo — actions/checkout@v4
+2) Configure AWS credentials (OIDC) — aws-actions/configure-aws-credentials@v4
+3) Install kubectl — azure/setup-kubectl@v4 (v1.33.0)
+4) Update kubeconfig — aws eks update-kubeconfig --region AWS_REGION --name EKS_CLUSTER_NAME; kubectl cluster-info
+5) Ensure namespace exists — kubectl get namespace NAMESPACE || kubectl create namespace NAMESPACE
+6) Apply base manifest — kubectl apply -n NAMESPACE -f services/python-web/deployment.yaml
+7) Patch deployment image to digest + rollout
+   - kubectl set image -n NAMESPACE deployment/APP_NAME APP_NAME=<needs.push-image.outputs.image>
+   - kubectl rollout status -n NAMESPACE deployment/APP_NAME --timeout=10m

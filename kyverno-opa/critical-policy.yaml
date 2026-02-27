@@ -1,12 +1,16 @@
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: require-signed-and-attested-python-openssl
+  name: enforce-signed-and-no-critical-vulns
 spec:
   validationFailureAction: Enforce
   background: false
+  webhookTimeoutSeconds: 30
+  failurePolicy: Fail
   rules:
-    - name: verify-python-openssl
+
+    # 1) Block images that are NOT signed by your GitHub OIDC identity
+    - name: require-github-oidc-signature
       match:
         any:
           - resources:
@@ -19,17 +23,50 @@ spec:
                 - CronJob
       verifyImages:
         - imageReferences:
-            - "452336408843.dkr.ecr.us-west-2.amazonaws.com/python-openssl*"
+            - "452336408843.dkr.ecr.us-west-2.amazonaws.com/python-openssl:*"
+            - "452336408843.dkr.ecr.us-west-2.amazonaws.com/python-openssl@sha256:*"
           required: true
+          mutateDigest: true
+          verifyDigest: true
           attestors:
             - entries:
                 - keyless:
                     issuer: "https://token.actions.githubusercontent.com"
-                    subjectRegExp: "^https://github.com/chainguard-demo/auto-deploy-demo/.github/workflows/.*@refs/(heads/main|pull/[0-9]+/merge)$"
+                    # GitHub Actions keyless cert identity format:
+                    # https://github.com/<org>/<repo>/.github/workflows/<workflow>.yml@refs/heads/<branch>
+                    subjectRegExp: "^https://github.com/chainguard-demo/auto-deploy-demo/.github/workflows/.*@refs/heads/main$"
+
+    # 2) Block deploy if the attested vuln predicate contains ANY Critical vulnerabilities
+    - name: require-attestation-and-block-critical
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+                - Deployment
+                - StatefulSet
+                - DaemonSet
+                - Job
+                - CronJob
+      verifyImages:
+        - imageReferences:
+            - "452336408843.dkr.ecr.us-west-2.amazonaws.com/python-openssl:*"
+            - "452336408843.dkr.ecr.us-west-2.amazonaws.com/python-openssl@sha256:*"
+          required: true
+          mutateDigest: true
+          verifyDigest: true
           attestations:
-            - type: "https://in-toto.io/Statement/v1"
+            - predicateType: "https://in-toto.io/Statement/v1"
               attestors:
                 - entries:
                     - keyless:
                         issuer: "https://token.actions.githubusercontent.com"
-                        subjectRegExp: "^https://github.com/chainguard-demo/auto-deploy-demo/.github/workflows/.*@refs/(heads/main|pull/[0-9]+/merge)$"
+                        subjectRegExp: "^https://github.com/chainguard-demo/auto-deploy-demo/.github/workflows/.*@refs/heads/main$"
+              conditions:
+                - all:
+                    # Your attested predicate is:
+                    # { "vulnerabilities": [ {id,severity,package,installed}, ... ] }
+                    # Block if any severity == "Critical"
+                    - key: "{{ length(vulnerabilities[?severity=='Critical']) }}"
+                      operator: Equals
+                      value: 0
