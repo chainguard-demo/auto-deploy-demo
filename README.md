@@ -3,22 +3,38 @@
 This demo walks through a full software supply chain flow:
 
 1. Build an image with an outdated OpenSSL (contains Critical CVEs) in Python 3.12
+
 2. Scan the image and detect vulnerabilities (Grype + optional Prisma Cloud)
+
 3. Detect Chainguard SLA-driven base image update
+
 4. Python image upgraded from 3.12.11 → 3.12.12
+
 5. OpenSSL vulnerability resolved within 1 Day and 15 Hours
+
 6. Run automated diff (chainctl + Grype) to compare old vs new image
+
 7. Only proceed if vulnerabilities are removed between versions
+
 8. Generate an automated Pull Request documenting CVE removals
+
 9. Promote the updated image to Amazon ECR
+
 10. Re-tag and digest-pin the image for immutable deployment
+
 11. Sign the image using keyless Cosign (GitHub OIDC)
+
 12. Generate and attach a vulnerability attestation (in-toto predicate)
+
 13. Enforce signature + vulnerability policy via Kyverno
+
 14. Deploy to EKS using digest-pinned, signed image
+
 15. Kyverno validates admission at CREATE/UPDATE time
+
 16. Roll out the patched workload to replace the vulnerable version
-17. Demonstrate zero-trust image promotion and policy-driven enforcement
+
+Demonstrates zero-trust image promotion and policy-driven enforcement
 
 ![Alt Text](assets/pr-image.png)
 
