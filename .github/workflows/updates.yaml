@@ -344,11 +344,14 @@ jobs:
           # Copy the formatted PR body into the repo so there's always a diff
           cp PR_BODY.md demo-results/last-run.md
 
+          # Record the NEW image so the deploy workflow can read it after merge
+          echo "${{ env.NEW_IMAGE }}" > demo-results/new-image.txt
+
           # Force a guaranteed change (even if content repeats)
           echo "" >> demo-results/last-run.md
           echo "run_id=${{ github.run_id }}" >> demo-results/last-run.md
 
-          git add demo-results/last-run.md
+          git add demo-results/last-run.md demo-results/new-image.txt
 
       - name: Create Pull Request
         if: env.FIX_CVE == 'true'
