@@ -2,17 +2,29 @@
 
 This demo walks through a full software supply chain flow:
 
-1.  Build an image with an outdated OpenSSL (contains Critical CVEs) in Python 3.12
-2.	Scan the image and detect vulnerabilities
-3.	Attempt deployment → blocked by Kyverno
-4.	Rebuild with patched base image
-5.	Sign the image with Cosign
-6.	Attach vulnerability attestation
-7.	Deploy again → admitted by policy
+1. Build an image with an outdated OpenSSL (contains Critical CVEs) in Python 3.12
+2. Scan the image and detect vulnerabilities (Grype + optional Prisma Cloud)
+3. Detect Chainguard SLA-driven base image update
+4. Python image upgraded from 3.12.11 → 3.12.12
+5. OpenSSL vulnerability resolved within 1 Day and 15 Hours
+6. Run automated diff (chainctl + Grype) to compare old vs new image
+7. Only proceed if vulnerabilities are removed between versions
+8. Generate an automated Pull Request documenting CVE removals
+9. Promote the updated image to Amazon ECR
+10. Re-tag and digest-pin the image for immutable deployment
+11. Sign the image using keyless Cosign (GitHub OIDC)
+12. Generate and attach a vulnerability attestation (in-toto predicate)
+13. Enforce signature + vulnerability policy via Kyverno
+14. Deploy to EKS using digest-pinned, signed image
+15. Kyverno validates admission at CREATE/UPDATE time
+16. Roll out the patched workload to replace the vulnerable version
+17. Demonstrate zero-trust image promotion and policy-driven enforcement
 
 ![Alt Text](assets/pr-image.png)
 
-### updates.yaml 
+### Detailed Steps in GitHub Workflows
+
+#### updates.yaml 
 
 Steps (in order):
 
@@ -49,11 +61,11 @@ Steps (in order):
    • branch: apply-cve-fix
    • delete-branch: true
 
-### deploy-main.yaml
+#### deploy-main.yaml
 
 Trigger: pull_request closed
 
-#### Job 1: push-image (runs only if PR merged AND head.ref == apply-cve-fix)
+##### Job 1: push-image (runs only if PR merged AND head.ref == apply-cve-fix)
 
 1) Checkout repo — actions/checkout@v4
 2) Setup Go — actions/setup-go (cache: false)
@@ -66,20 +78,15 @@ Trigger: pull_request closed
 9) Auth to Chainguard registry — chainctl auth configure-docker
 10) Read source image from repo — cat demo-results/new-image.txt -> SRC
 11) Copy SRC to ECR + compute digest-pinned ref
-    - crane copy SRC <ecr>/<repo>:<github.sha>
-    - crane digest <ecr>/<repo>:<github.sha>
-    - output image=<ecr>/<repo>@sha256:<digest>
-12) Keyless sign ECR image — cosign sign --yes <digest-pinned-image> (COSIGN_EXPERIMENTAL=1)
-13) Attest vulnerability predicate — grype <image> -o json; jq -> vuln-predicate.json; cosign attest --predicate vuln-predicate.json <image>
+12) Keyless sign ECR image
+13) Attest vulnerability predicate 
 
-#### Job 2: deploy (needs push-image; runs only if push-image succeeded)
+##### Job 2: deploy (needs push-image; runs only if push-image succeeded)
 
-1) Checkout repo — actions/checkout@v4
-2) Configure AWS credentials (OIDC) — aws-actions/configure-aws-credentials@v4
-3) Install kubectl — azure/setup-kubectl@v4 (v1.33.0)
-4) Update kubeconfig — aws eks update-kubeconfig --region AWS_REGION --name EKS_CLUSTER_NAME; kubectl cluster-info
-5) Ensure namespace exists — kubectl get namespace NAMESPACE || kubectl create namespace NAMESPACE
+1) Checkout repo 
+2) Configure AWS credentials (OIDC) 
+3) Install kubectl 
+4) Update kubeconfig 
+5) Ensure namespace exists
 6) Apply base manifest — kubectl apply -n NAMESPACE -f services/python-web/deployment.yaml
 7) Patch deployment image to digest + rollout
-   - kubectl set image -n NAMESPACE deployment/APP_NAME APP_NAME=<needs.push-image.outputs.image>
-   - kubectl rollout status -n NAMESPACE deployment/APP_NAME --timeout=10m
