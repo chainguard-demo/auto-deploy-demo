@@ -55,6 +55,14 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da
 
+      - name: Install Grype (pinned release)
+        run: |
+          set -euo pipefail
+          GRYPE_VERSION="v0.91.2"
+          curl -sSfL "https://github.com/anchore/grype/releases/download/${GRYPE_VERSION}/grype_${GRYPE_VERSION#v}_linux_amd64.tar.gz" \
+            | tar -xz -C /usr/local/bin grype
+          grype version
+
       - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262
         with:
           identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
@@ -72,13 +80,14 @@ jobs:
           echo "src=$SRC" >> "$GITHUB_OUTPUT"
           echo "Using source image: $SRC"
 
-      - name: Copy image to ECR 
+      - name: Copy image to ECR (and output digest-pinned ref)
         id: out
         run: |
           set -euo pipefail
           ECR="${{ steps.login-ecr.outputs.registry }}"
           TAG="${{ github.sha }}"
-          DST="${ECR}/${{ env.ECR_REPO }}:${TAG}"
+          DST_REPO="${ECR}/${{ env.ECR_REPO }}"
+          DST="${DST_REPO}:${TAG}"
 
           echo "Copying:"
           echo "  SRC=${{ steps.src.outputs.src }}"
@@ -86,7 +95,46 @@ jobs:
 
           crane copy "${{ steps.src.outputs.src }}" "$DST"
 
-          echo "image=$DST" >> "$GITHUB_OUTPUT"
+          DIGEST="$(crane digest "$DST")"
+          DST_REF="${DST_REPO}@${DIGEST}"
+
+          echo "image=$DST_REF" >> "$GITHUB_OUTPUT"
+          echo "Copied to: $DST_REF"
+
+      - name: Keyless sign ECR image (GitHub OIDC)
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          set -euo pipefail
+          cosign sign --yes "${{ steps.out.outputs.image }}"
+
+      - name: Keyless attest Grype vulnerability predicate to ECR image
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          set -euo pipefail
+          IMG="${{ steps.out.outputs.image }}"
+
+          grype "$IMG" -o json > grype-new.json
+
+          jq '{
+            vulnerabilities: (
+              [ .matches[]
+                | {
+                    id: .vulnerability.id,
+                    severity: .vulnerability.severity,
+                    package: .artifact.name,
+                    installed: (.artifact.version // "")
+                  }
+              ] | unique
+            )
+          }' grype-new.json > vuln-predicate.json
+
+          cosign attest \
+            --yes \
+            --type "https://in-toto.io/Statement/v1" \
+            --predicate vuln-predicate.json \
+            "$IMG"
 
   deploy:
     needs: [push-image]
@@ -128,7 +176,7 @@ jobs:
           set -euo pipefail
           kubectl apply -n "${{ env.NAMESPACE }}" -f services/python-web/deployment.yaml
 
-      - name: Patch deployment image + rollout
+      - name: Patch deployment image (digest) + rollout
         run: |
           set -euo pipefail
           IMAGE="${{ needs.push-image.outputs.image }}"

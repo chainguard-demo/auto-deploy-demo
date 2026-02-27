@@ -1,0 +1,9 @@
+# CVE comparison / grype artifacts
+grype-old.json
+grype-new.json
+old.tsv
+new.keys
+removed.tsv
+diff.json
+PR_BODY.md
+kyverno-opa/certs/*

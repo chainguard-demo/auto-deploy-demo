@@ -1,0 +1,53 @@
+admissionController:
+  initContainer:
+    image:
+      registry: 452336408843.dkr.ecr.us-west-2.amazonaws.com
+      repository: kyvernopre
+      tag: latest
+  container:
+    image:
+      registry: 452336408843.dkr.ecr.us-west-2.amazonaws.com
+      repository: kyverno
+      tag: latest
+
+backgroundController:
+  image:
+    registry: 452336408843.dkr.ecr.us-west-2.amazonaws.com
+    repository: kyverno-background-controller
+    tag: latest
+
+cleanupController:
+  image:
+    registry: 452336408843.dkr.ecr.us-west-2.amazonaws.com
+    repository: kyverno-cleanup-controller
+    tag: latest
+
+reportsController:
+  image:
+    registry: 452336408843.dkr.ecr.us-west-2.amazonaws.com
+    repository: kyverno-reports-controller
+    tag: latest
+
+
+# helm upgrade --install kyverno kyverno/kyverno \
+#  -n kyverno --create-namespace \
+#  --set installCRDs=true \
+#  --set webhooks.enabled=true \
+#  --set webhooks.useCertManager=false
+#  --set webhooks.autoGenerateCert=true
+
+####
+## Copy tls-pair secret to kyverno-svc tls-pair
+#kubectl -n kyverno get secret kyverno-cleanup-controller.kyverno.svc.kyverno-tls-pair -o yaml \
+#  | sed 's/name: kyverno-cleanup-controller\.kyverno\.svc\.kyverno-tls-pair/name: kyverno-svc.kyverno.svc.kyverno-tls-pair/' \
+#  | kubectl apply -f -
+
+# Copy tls-ca secret to kyverno-svc tls-ca
+#kubectl -n kyverno get secret kyverno-cleanup-controller.kyverno.svc.kyverno-tls-ca -o yaml \
+#  | sed 's/name: kyverno-cleanup-controller\.kyverno\.svc\.kyverno-tls-ca/name: kyverno-svc.kyverno.svc.kyverno-tls-ca/' \
+#  | kubectl apply -f -
+
+
+#kubectl -n kyverno rollout restart deploy/kyverno-admission-controller
+#kubectl -n kyverno rollout status deploy/kyverno-admission-controller --timeout=5m
+
