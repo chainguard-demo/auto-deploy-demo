@@ -30,6 +30,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Go environment
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed
+        with:
+          cache: false
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -44,8 +49,15 @@ jobs:
         run: |
           set -euo pipefail
           go install github.com/google/go-containerregistry/cmd/crane@latest
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          echo "$HOME/go/bin" >> "$GITHUB_PATH"
           crane version
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da
+
+      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262
+        with:
+          identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
 
       - name: Auth to Chainguard registry (cgr.dev)
         run: |
