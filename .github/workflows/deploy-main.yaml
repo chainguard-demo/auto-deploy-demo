@@ -16,7 +16,6 @@ env:
 permissions: {}
 
 jobs:
-  # Only run when the PR is merged AND it came from your updates branch
   push-image:
     if: >
       github.event.pull_request.merged == true &&
@@ -26,7 +25,7 @@ jobs:
       contents: read
       id-token: write
     outputs:
-      image: ${{ steps.meta.outputs.image }}
+      image: ${{ steps.out.outputs.image }}
 
     steps:
       - uses: actions/checkout@v4
@@ -41,27 +40,41 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Install crane
+        run: |
+          set -euo pipefail
+          go install github.com/google/go-containerregistry/cmd/crane@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          crane version
 
-      # Use merge commit SHA as the tag (unique per merged PR)
-      - name: Compute image tag
-        id: meta
+      - name: Auth to Chainguard registry (cgr.dev)
+        run: |
+          set -euo pipefail
+          chainctl auth configure-docker
+
+      - name: Read source image from merged PR content
+        id: src
+        run: |
+          set -euo pipefail
+          SRC="$(cat demo-results/new-image.txt)"
+          echo "src=$SRC" >> "$GITHUB_OUTPUT"
+          echo "Using source image: $SRC"
+
+      - name: Copy image to ECR 
+        id: out
         run: |
           set -euo pipefail
           ECR="${{ steps.login-ecr.outputs.registry }}"
           TAG="${{ github.sha }}"
-          IMAGE="${ECR}/${{ env.ECR_REPO }}:${TAG}"
-          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
-          echo "Pushing image: $IMAGE"
+          DST="${ECR}/${{ env.ECR_REPO }}:${TAG}"
 
-      - name: Build + Push Image
-        run: |
-          set -euo pipefail
-          docker buildx build --platform linux/amd64 \
-            -t "${{ steps.meta.outputs.image }}" \
-            --push \
-            services/python-web
+          echo "Copying:"
+          echo "  SRC=${{ steps.src.outputs.src }}"
+          echo "  DST=$DST"
+
+          crane copy "${{ steps.src.outputs.src }}" "$DST"
+
+          echo "image=$DST" >> "$GITHUB_OUTPUT"
 
   deploy:
     needs: [push-image]
