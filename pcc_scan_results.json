@@ -84,10 +84,10 @@
 				},
 				{
 					"type": "os",
-					"name": "expat",
-					"version": "2.7.4-r1",
+					"name": "python-3.12",
+					"version": "3.12.12-r6",
 					"licenses": [
-						"MIT"
+						"PSF-2.0"
 					]
 				},
 				{
@@ -100,6 +100,14 @@
 				},
 				{
 					"type": "os",
+					"name": "ncurses",
+					"version": "6.6_p20251230-r1",
+					"licenses": [
+						"MIT"
+					]
+				},
+				{
+					"type": "os",
 					"name": "openssl",
 					"version": "3.6.1-r1",
 					"licenses": [
@@ -108,18 +116,10 @@
 				},
 				{
 					"type": "os",
-					"name": "glibc",
-					"version": "2.43-r1",
+					"name": "expat",
+					"version": "2.7.4-r1",
 					"licenses": [
-						"LGPL-2.1-or-later"
-					]
-				},
-				{
-					"type": "os",
-					"name": "bzip2",
-					"version": "1.0.8-r22",
-					"licenses": [
-						"MPL-2.0 AND MIT"
+						"MIT"
 					]
 				},
 				{
@@ -132,24 +132,8 @@
 				},
 				{
 					"type": "os",
-					"name": "python-3.12",
-					"version": "3.12.12-r6",
-					"licenses": [
-						"PSF-2.0"
-					]
-				},
-				{
-					"type": "os",
 					"name": "py3-pip",
 					"version": "26.0.1-r1",
-					"licenses": [
-						"MIT"
-					]
-				},
-				{
-					"type": "os",
-					"name": "ncurses",
-					"version": "6.6_p20251230-r1",
 					"licenses": [
 						"MIT"
 					]
@@ -168,6 +152,22 @@
 					"version": "15.2.0-r9",
 					"licenses": [
 						"GPL-3.0-or-later WITH GCC-exception-3.1"
+					]
+				},
+				{
+					"type": "os",
+					"name": "glibc",
+					"version": "2.43-r1",
+					"licenses": [
+						"LGPL-2.1-or-later"
+					]
+				},
+				{
+					"type": "os",
+					"name": "bzip2",
+					"version": "1.0.8-r22",
+					"licenses": [
+						"MPL-2.0 AND MIT"
 					]
 				}
 			],
@@ -233,8 +233,8 @@
 					"instruction": "RUN apko"
 				}
 			],
-			"scanTime": "2026-02-27T17:11:18.313440328Z",
-			"scanID": "69a1d03635aa24925a56fb9d"
+			"scanTime": "2026-02-27T17:33:39.402601132Z",
+			"scanID": "69a1d573acb3087a000f7b63"
 		}
 	],
 	"consoleURL": "https://app.prismacloud.io/compute?computeState=/monitor/vulnerabilities/images/ci?search%3Dsha256%253A0539948bd980554874c438e2a24a245b3c90c6be7c473d9c4d267c5ffe3e390f"
