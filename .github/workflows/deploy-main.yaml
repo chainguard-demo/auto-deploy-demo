@@ -1,77 +1,118 @@
 name: deploy-main
 
 on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+  pull_request:
+    types: [closed]
 
 env:
-  DEPLOY_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.12"
-  NAMESPACE: "demo"
-  APP_NAME: "python-demo"
+  AWS_REGION: us-west-2
+  EKS_CLUSTER_NAME: fpd2-eks
+
+  ECR_REPO: python-openssl
+
+  NAMESPACE: demo
+  APP_NAME: python-demo
 
 permissions: {}
 
 jobs:
+  # Only run when the PR is merged AND it came from your updates branch
+  push-image:
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.ref == 'apply-cve-fix'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.FPD_AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Use merge commit SHA as the tag (unique per merged PR)
+      - name: Compute image tag
+        id: meta
+        run: |
+          set -euo pipefail
+          ECR="${{ steps.login-ecr.outputs.registry }}"
+          TAG="${{ github.sha }}"
+          IMAGE="${ECR}/${{ env.ECR_REPO }}:${TAG}"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "Pushing image: $IMAGE"
+
+      - name: Build + Push Image
+        run: |
+          set -euo pipefail
+          docker buildx build --platform linux/amd64 \
+            -t "${{ steps.meta.outputs.image }}" \
+            --push \
+            services/python-web
+
   deploy:
+    needs: [push-image]
+    if: needs.push-image.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@v4
 
-      # Option A: kubectl with a kubeconfig stored as a secret
-      - name: Setup kubeconfig
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.FPD_AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.33.0"
+
+      - name: Update kubeconfig (EKS)
         run: |
           set -euo pipefail
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > ~/.kube/config
-          chmod 600 ~/.kube/config
-          kubectl version --client
+          aws eks update-kubeconfig \
+            --region "${{ env.AWS_REGION }}" \
+            --name "${{ env.EKS_CLUSTER_NAME }}"
           kubectl cluster-info
 
-      - name: Deploy manifest (simple)
+      - name: Ensure namespace exists
+        run: |
+          kubectl get namespace "${{ env.NAMESPACE }}" \
+            || kubectl create namespace "${{ env.NAMESPACE }}"
+
+      - name: Apply manifest (deployment.yaml)
         run: |
           set -euo pipefail
+          kubectl apply -n "${{ env.NAMESPACE }}" -f services/python-web/deployment.yaml
 
-          kubectl create namespace "${{ env.NAMESPACE }}" --dry-run=client -o yaml | kubectl apply -f -
+      - name: Patch deployment image + rollout
+        run: |
+          set -euo pipefail
+          IMAGE="${{ needs.push-image.outputs.image }}"
+          echo "Deploying image: $IMAGE"
 
-          cat <<'YAML' | kubectl apply -n "${{ env.NAMESPACE }}" -f -
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: python-demo
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: python-demo
-            template:
-              metadata:
-                labels:
-                  app: python-demo
-              spec:
-                containers:
-                - name: python
-                  image: ${DEPLOY_IMAGE}
-                  command: ["python"]
-                  args: ["-m", "http.server", "8080"]
-                  ports:
-                  - containerPort: 8080
-          ---
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: python-demo
-          spec:
-            selector:
-              app: python-demo
-            ports:
-            - port: 80
-              targetPort: 8080
-            type: ClusterIP
-          YAML
+          kubectl set image -n "${{ env.NAMESPACE }}" \
+            deployment/"${{ env.APP_NAME }}" \
+            "${{ env.APP_NAME }}"="$IMAGE"
 
-          kubectl rollout status deploy/python-demo -n "${{ env.NAMESPACE }}" --timeout=180s
+          kubectl rollout status -n "${{ env.NAMESPACE }}" \
+            deployment/"${{ env.APP_NAME }}" \
+            --timeout=10m
