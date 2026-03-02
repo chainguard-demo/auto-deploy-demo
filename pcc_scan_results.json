@@ -92,34 +92,26 @@
 				},
 				{
 					"type": "os",
+					"name": "util-linux",
+					"version": "2.41.3-r3",
+					"licenses": [
+						"GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-2.0-only AND GPL-1.0-only AND LGPL-2.1-or-later AND BSD-1-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND MIT AND CC-PDDC"
+					]
+				},
+				{
+					"type": "os",
+					"name": "glibc",
+					"version": "2.43-r1",
+					"licenses": [
+						"LGPL-2.1-or-later"
+					]
+				},
+				{
+					"type": "os",
 					"name": "ca-certificates",
 					"version": "20251003-r3",
 					"licenses": [
 						"MPL-2.0 AND MIT"
-					]
-				},
-				{
-					"type": "os",
-					"name": "py3-pip",
-					"version": "26.0.1-r1",
-					"licenses": [
-						"MIT"
-					]
-				},
-				{
-					"type": "os",
-					"name": "openssl",
-					"version": "3.6.1-r1",
-					"licenses": [
-						"Apache-2.0"
-					]
-				},
-				{
-					"type": "os",
-					"name": "expat",
-					"version": "2.7.4-r1",
-					"licenses": [
-						"MIT"
 					]
 				},
 				{
@@ -140,18 +132,18 @@
 				},
 				{
 					"type": "os",
-					"name": "ncurses",
-					"version": "6.6_p20251230-r1",
+					"name": "py3-pip",
+					"version": "26.0.1-r1",
 					"licenses": [
 						"MIT"
 					]
 				},
 				{
 					"type": "os",
-					"name": "util-linux",
-					"version": "2.41.3-r3",
+					"name": "ncurses",
+					"version": "6.6_p20251230-r1",
 					"licenses": [
-						"GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-2.0-only AND GPL-1.0-only AND LGPL-2.1-or-later AND BSD-1-Clause AND BSD-3-Clause AND BSD-4-Clause-UC AND MIT AND CC-PDDC"
+						"MIT"
 					]
 				},
 				{
@@ -164,10 +156,18 @@
 				},
 				{
 					"type": "os",
-					"name": "glibc",
-					"version": "2.43-r1",
+					"name": "openssl",
+					"version": "3.6.1-r1",
 					"licenses": [
-						"LGPL-2.1-or-later"
+						"Apache-2.0"
+					]
+				},
+				{
+					"type": "os",
+					"name": "expat",
+					"version": "2.7.4-r1",
+					"licenses": [
+						"MIT"
 					]
 				}
 			],
@@ -233,8 +233,8 @@
 					"instruction": "RUN apko"
 				}
 			],
-			"scanTime": "2026-03-02T17:16:03.118550124Z",
-			"scanID": "69a5c5d3b1ba9c4d47d6150a"
+			"scanTime": "2026-03-02T17:33:25.553681027Z",
+			"scanID": "69a5c9e59ceb8785924b2afa"
 		}
 	],
 	"consoleURL": "https://app.prismacloud.io/compute?computeState=/monitor/vulnerabilities/images/ci?search%3Dsha256%253A0539948bd980554874c438e2a24a245b3c90c6be7c473d9c4d267c5ffe3e390f"
