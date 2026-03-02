@@ -196,22 +196,26 @@ jobs:
           IMAGE="${{ needs.push-image.outputs.image }}"
           grype "$IMAGE" -o json > grype-new.json
 
+          # Count Critical + High (null-safe)
           CRIT_HIGH_COUNT="$(jq -r '
-            [.matches[]?
+            [(.matches // [])
+              []?
               | .vulnerability.severity
               | select(. == "Critical" or . == "High")
             ] | length
           ' grype-new.json)"
 
+          # Max severity (Critical > High > Medium > Low > Unknown > Negligible > None)
           MAX_SEV="$(jq -r '
             def rank(s):
               if s=="Critical" then 6
-              else if s=="High" then 5
-              else if s=="Medium" then 4
-              else if s=="Low" then 3
-              else if s=="Unknown" then 2
-              else if s=="Negligible" then 1
-              else 0 end;
+              elif s=="High" then 5
+              elif s=="Medium" then 4
+              elif s=="Low" then 3
+              elif s=="Unknown" then 2
+              elif s=="Negligible" then 1
+              else 0
+              end;
 
             if ((.matches // []) | length) == 0 then
               "None"
@@ -219,7 +223,7 @@ jobs:
               ((.matches // [])
                 | map(.vulnerability.severity // "Unknown")
                 | reduce .[] as $s ({"best":"None","bestRank":0};
-                    (r:=rank($s)) |
+                    (r := rank($s)) |
                     if r > .bestRank then {"best":$s,"bestRank":r} else . end
                   )
                 | .best
