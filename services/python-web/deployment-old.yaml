@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-demo
+  namespace: demo
+  labels:
+    app: python-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: python-demo
+  template:
+    metadata:
+      labels:
+        app: python-demo
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: python-demo
+          image: 452336408843.dkr.ecr.us-west-2.amazonaws.com/python-openssl:3.12.11
+          ports:
+            - containerPort: 8080
+          command: ["python", "-m", "http.server", "8080"]
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 5
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-demo
+  namespace: demo
+spec:
+  type: LoadBalancer
+  selector:
+    app: python-demo
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP

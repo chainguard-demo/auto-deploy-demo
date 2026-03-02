@@ -38,18 +38,4 @@ reportsController:
 #  --set-string features.generateValidatingAdmissionPolicy.enabled="false" \
 #  --set-string features.generateMutatingAdmissionPolicy.enabled="false"
 
-####
-#Copy tls-pair secret to kyverno-svc tls-pair
-#kubectl -n kyverno get secret kyverno-cleanup-controller.kyverno.svc.kyverno-tls-pair -o yaml \
-#  | sed 's/name: kyverno-cleanup-controller\.kyverno\.svc\.kyverno-tls-pair/name: kyverno-svc.kyverno.svc.kyverno-tls-pair/' \
-#  | kubectl apply -f -
-
-# Copy tls-ca secret to kyverno-svc tls-ca
-#kubectl -n kyverno get secret kyverno-cleanup-controller.kyverno.svc.kyverno-tls-ca -o yaml \
-#  | sed 's/name: kyverno-cleanup-controller\.kyverno\.svc\.kyverno-tls-ca/name: kyverno-svc.kyverno.svc.kyverno-tls-ca/' \
-#  | kubectl apply -f -
-
-
-#kubectl -n kyverno rollout restart deploy/kyverno-admission-controller
-#kubectl -n kyverno rollout status deploy/kyverno-admission-controller --timeout=5m
 

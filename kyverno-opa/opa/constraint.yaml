@@ -1,0 +1,26 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sBlockCriticalHighVulns
+metadata:
+  name: block-critical-high-vulns
+spec:
+  match:
+    kinds:
+      # Enforce on Pods and common workload controllers
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["apps"]
+        kinds: ["Deployment","StatefulSet","DaemonSet","ReplicaSet"]
+      - apiGroups: ["batch"]
+        kinds: ["Job","CronJob"]
+  parameters:
+    # This is your “proof” the deploy came from CI
+    requiredAnnotationKey: "demo.chainguard.dev/ci-run-id"
+
+    # Severity verdict computed in GH Actions
+    maxSeverityAnnotationKey: "demo.chainguard.dev/vuln-max-severity"
+
+    # Count of Critical+High computed in GH Actions
+    criticalHighCountAnnotationKey: "demo.chainguard.dev/vuln-critical-high-count"
+
+    # Allow only these. (If maxSeverity is High/Critical -> denied)
+    allowedMaxSeverities: ["None","Unknown","Low","Medium"]
