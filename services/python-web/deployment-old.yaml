@@ -14,43 +14,42 @@ spec:
     metadata:
       labels:
         app: python-demo
+      annotations:
+        # Forces a new ReplicaSet on every apply (handy for repeated demos)
+        demo.chainguard.dev/rollout: "bad-image-v3.12.11"
     spec:
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds: 10
       containers:
         - name: python-demo
+          # BAD/FAIL DEMO:
+          # - tag-based ref (not digest pinned)
+          # - choose the image you expect Gatekeeper to reject (old + vulnerable, or unsigned/unattested)
           image: 452336408843.dkr.ecr.us-west-2.amazonaws.com/python-openssl:3.12.11
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           command: ["python", "-m", "http.server", "8080"]
-          imagePullPolicy: IfNotPresent
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
+              cpu: "50m"
+              memory: "64Mi"
             limits:
-              cpu: "500m"
-              memory: "256Mi"
-          startupProbe:
+              cpu: "250m"
+              memory: "128Mi"
+          readinessProbe:
             httpGet:
               path: /
               port: 8080
-            failureThreshold: 30
+            initialDelaySeconds: 2
             periodSeconds: 5
             timeoutSeconds: 2
-          readinessProbe:
+            failureThreshold: 2
+          livenessProbe:
             httpGet:
               path: /
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
-            timeoutSeconds: 2
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8080
-            initialDelaySeconds: 15
-            periodSeconds: 20
             timeoutSeconds: 2
             failureThreshold: 3
 
@@ -61,7 +60,7 @@ metadata:
   name: python-demo
   namespace: demo
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: python-demo
   ports:

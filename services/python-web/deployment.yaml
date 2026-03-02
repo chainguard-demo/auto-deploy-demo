@@ -14,6 +14,10 @@ spec:
     metadata:
       labels:
         app: python-demo
+      annotations:
+        demo.chainguard.dev/ci-run-id: "LOCAL"
+        demo.chainguard.dev/vuln-max-severity: "Unknown"
+        demo.chainguard.dev/vuln-critical-high-count: "0"
     spec:
       terminationGracePeriodSeconds: 30
       containers:

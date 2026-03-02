@@ -26,12 +26,14 @@ jobs:
       id-token: write
     outputs:
       image: ${{ steps.out.outputs.image }}
-      ci_run_id: ${{ github.run_id }}
-      vuln_max_severity: ${{ steps.vulnmeta.outputs.max_sev }}
-      vuln_critical_high_count: ${{ steps.vulnmeta.outputs.crit_high }}
+      ci_run_id: ${{ steps.runid.outputs.ci_run_id }}
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set CI run id output
+        id: runid
+        run: echo "ci_run_id=${{ github.run_id }}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Go environment
         uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed
@@ -139,36 +141,6 @@ jobs:
             --predicate vuln-predicate.json \
             "$IMG"
 
-      - name: Compute vuln metadata for admission (max severity + critical/high count)
-        id: vulnmeta
-        run: |
-          set -euo pipefail
-
-          CRIT="$(jq -r '[.matches[]? | select(.vulnerability.severity=="Critical")] | length' grype-new.json)"
-          HIGH="$(jq -r '[.matches[]? | select(.vulnerability.severity=="High")] | length' grype-new.json)"
-          CRIT_HIGH=$((CRIT + HIGH))
-
-          if [ "$CRIT" -gt 0 ]; then
-            MAX="Critical"
-          elif [ "$HIGH" -gt 0 ]; then
-            MAX="High"
-          else
-            MED="$(jq -r '[.matches[]? | select(.vulnerability.severity=="Medium")] | length' grype-new.json)"
-            LOW="$(jq -r '[.matches[]? | select(.vulnerability.severity=="Low")] | length' grype-new.json)"
-            UNK="$(jq -r '[.matches[]? | select(.vulnerability.severity=="Unknown")] | length' grype-new.json)"
-            if [ "$MED" -gt 0 ]; then MAX="Medium"
-            elif [ "$LOW" -gt 0 ]; then MAX="Low"
-            elif [ "$UNK" -gt 0 ]; then MAX="Unknown"
-            else MAX=""
-            fi
-          fi
-
-          echo "crit_high=$CRIT_HIGH" >> "$GITHUB_OUTPUT"
-          echo "max_sev=$MAX" >> "$GITHUB_OUTPUT"
-
-          echo "criticalHighCount=$CRIT_HIGH"
-          echo "maxSeverity=$MAX"
-
   deploy:
     needs: [push-image]
     if: needs.push-image.result == 'success'
@@ -191,6 +163,14 @@ jobs:
         with:
           version: "v1.33.0"
 
+      - name: Install Grype (pinned release)
+        run: |
+          set -euo pipefail
+          GRYPE_VERSION="v0.91.2"
+          curl -sSfL "https://github.com/anchore/grype/releases/download/${GRYPE_VERSION}/grype_${GRYPE_VERSION#v}_linux_amd64.tar.gz" \
+            | tar -xz -C /usr/local/bin grype
+          grype version
+
       - name: Update kubeconfig (EKS)
         run: |
           set -euo pipefail
@@ -204,27 +184,91 @@ jobs:
           kubectl get namespace "${{ env.NAMESPACE }}" \
             || kubectl create namespace "${{ env.NAMESPACE }}"
 
-      - name: Apply manifest (deployment.yaml)
+      - name: Compute vuln verdict annotations (max severity + critical/high count)
+        id: verdict
         run: |
           set -euo pipefail
-          kubectl apply -n "${{ env.NAMESPACE }}" -f services/python-web/deployment.yaml
 
-      - name: Patch deployment template annotations (Gatekeeper input)
+          IMAGE="${{ needs.push-image.outputs.image }}"
+          grype "$IMAGE" -o json > grype-new.json
+
+          CRIT_HIGH_COUNT="$(jq -r '
+            [.matches[]?
+              | .vulnerability.severity
+              | select(. == "Critical" or . == "High")
+            ] | length
+          ' grype-new.json)"
+
+          MAX_SEV="$(jq -r '
+            def rank(s):
+              if s=="Critical" then 6
+              else if s=="High" then 5
+              else if s=="Medium" then 4
+              else if s=="Low" then 3
+              else if s=="Unknown" then 2
+              else if s=="Negligible" then 1
+              else 0 end;
+
+            if ((.matches // []) | length) == 0 then
+              "None"
+            else
+              ((.matches // [])
+                | map(.vulnerability.severity // "Unknown")
+                | reduce .[] as $s ({"best":"None","bestRank":0};
+                    (r:=rank($s)) |
+                    if r > .bestRank then {"best":$s,"bestRank":r} else . end
+                  )
+                | .best
+              )
+            end
+          ' grype-new.json)"
+
+          echo "crit_high=$CRIT_HIGH_COUNT" >> "$GITHUB_OUTPUT"
+          echo "max_sev=$MAX_SEV" >> "$GITHUB_OUTPUT"
+
+          echo "Computed:"
+          echo "  demo.chainguard.dev/ci-run-id=${{ needs.push-image.outputs.ci_run_id }}"
+          echo "  demo.chainguard.dev/vuln-critical-high-count=$CRIT_HIGH_COUNT"
+          echo "  demo.chainguard.dev/vuln-max-severity=$MAX_SEV"
+
+      - name: Apply manifest with required Gatekeeper annotations (kustomize patch)
         run: |
           set -euo pipefail
-          kubectl -n "${{ env.NAMESPACE }}" patch deployment/"${{ env.APP_NAME }}" --type merge -p "{
-            \"spec\": {
-              \"template\": {
-                \"metadata\": {
-                  \"annotations\": {
-                    \"demo.chainguard.dev/ci-run-id\": \"${{ needs.push-image.outputs.ci_run_id }}\",
-                    \"demo.chainguard.dev/vuln-max-severity\": \"${{ needs.push-image.outputs.vuln_max_severity }}\",
-                    \"demo.chainguard.dev/vuln-critical-high-count\": \"${{ needs.push-image.outputs.vuln_critical_high_count }}\"
-                  }
-                }
-              }
-            }
-          }"
+
+          RUN_ID="${{ needs.push-image.outputs.ci_run_id }}"
+          MAX_SEV="${{ steps.verdict.outputs.max_sev }}"
+          COUNT="${{ steps.verdict.outputs.crit_high }}"
+
+          cat > kustomization.yaml <<'EOF'
+          resources:
+            - services/python-web/deployment.yaml
+          patches:
+            - target:
+                kind: Deployment
+                name: python-demo
+              patch: |-
+                - op: add
+                  path: /spec/template/metadata/annotations
+                  value: {}
+                - op: add
+                  path: /spec/template/metadata/annotations/demo.chainguard.dev~1ci-run-id
+                  value: "__RUN_ID__"
+                - op: add
+                  path: /spec/template/metadata/annotations/demo.chainguard.dev~1vuln-max-severity
+                  value: "__MAX_SEV__"
+                - op: add
+                  path: /spec/template/metadata/annotations/demo.chainguard.dev~1vuln-critical-high-count
+                  value: "__COUNT__"
+          EOF
+
+          # Escape any characters that could break sed replacement
+          esc() { printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'; }
+
+          sed -i "s/__RUN_ID__/$(esc "$RUN_ID")/g" kustomization.yaml
+          sed -i "s/__MAX_SEV__/$(esc "$MAX_SEV")/g" kustomization.yaml
+          sed -i "s/__COUNT__/$(esc "$COUNT")/g" kustomization.yaml
+
+          kubectl apply -n "${{ env.NAMESPACE }}" -k .
 
       - name: Patch deployment image (digest) + rollout
         run: |
