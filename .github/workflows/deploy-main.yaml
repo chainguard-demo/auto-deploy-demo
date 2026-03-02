@@ -157,18 +157,6 @@ jobs:
         with:
           role-to-assume: ${{ secrets.FPD_AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: "v1.33.0"
-
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.FPD_AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_REGION }}
-
   
       - name: Login to Amazon ECR
         id: login-ecr
@@ -181,6 +169,11 @@ jobs:
           curl -sSfL "https://github.com/anchore/grype/releases/download/${GRYPE_VERSION}/grype_${GRYPE_VERSION#v}_linux_amd64.tar.gz" \
             | tar -xz -C /usr/local/bin grype
           grype version
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.33.0"
 
       - name: Update kubeconfig (EKS)
         run: |
