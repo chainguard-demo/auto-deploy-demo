@@ -194,47 +194,40 @@ jobs:
           set -euo pipefail
 
           IMAGE="${{ needs.push-image.outputs.image }}"
+          echo "Scanning image for admission metadata: $IMAGE"
+
+          # If you're scanning a private ECR image, you MUST be logged in earlier in this job:
+          # - aws-actions/configure-aws-credentials@v4
+          # - aws-actions/amazon-ecr-login@v2
+          #
+          # (Otherwise grype will fail with 401/no basic auth credentials.)
+
           grype "$IMAGE" -o json > grype-new.json
 
           # Count Critical + High (null-safe)
           CRIT_HIGH_COUNT="$(jq -r '
-            [(.matches // [])
-              []?
-              | .vulnerability.severity
+            [(.matches // [])[]?
+              | (.vulnerability.severity // "Unknown")
               | select(. == "Critical" or . == "High")
             ] | length
           ' grype-new.json)"
 
-          # Max severity (Critical > High > Medium > Low > Unknown > Negligible > None)
+          # Max severity (jq 1.6 compatible; no := assignment)
           MAX_SEV="$(jq -r '
-            def rank(s):
-              if s=="Critical" then 6
-              elif s=="High" then 5
-              elif s=="Medium" then 4
-              elif s=="Low" then 3
-              elif s=="Unknown" then 2
-              elif s=="Negligible" then 1
-              else 0
-              end;
-
-            if ((.matches // []) | length) == 0 then
-              "None"
-            else
-              ((.matches // [])
-                | map(.vulnerability.severity // "Unknown")
-                | reduce .[] as $s ({"best":"None","bestRank":0};
-                    (r := rank($s)) |
-                    if r > .bestRank then {"best":$s,"bestRank":r} else . end
-                  )
-                | .best
-              )
+            if   ([ (.matches // [])[]? | (.vulnerability.severity // "Unknown") | select(.=="Critical")  ] | length) > 0 then "Critical"
+            elif ([ (.matches // [])[]? | (.vulnerability.severity // "Unknown") | select(.=="High")      ] | length) > 0 then "High"
+            elif ([ (.matches // [])[]? | (.vulnerability.severity // "Unknown") | select(.=="Medium")    ] | length) > 0 then "Medium"
+            elif ([ (.matches // [])[]? | (.vulnerability.severity // "Unknown") | select(.=="Low")       ] | length) > 0 then "Low"
+            elif ([ (.matches // [])[]? | (.vulnerability.severity // "Unknown") | select(.=="Unknown")   ] | length) > 0 then "Unknown"
+            elif ([ (.matches // [])[]? | (.vulnerability.severity // "Unknown") | select(.=="Negligible")] | length) > 0 then "Negligible"
+            else "None"
             end
           ' grype-new.json)"
 
           echo "crit_high=$CRIT_HIGH_COUNT" >> "$GITHUB_OUTPUT"
           echo "max_sev=$MAX_SEV" >> "$GITHUB_OUTPUT"
 
-          echo "Computed:"
+          echo "Computed (for Gatekeeper annotations):"
           echo "  demo.chainguard.dev/ci-run-id=${{ needs.push-image.outputs.ci_run_id }}"
           echo "  demo.chainguard.dev/vuln-critical-high-count=$CRIT_HIGH_COUNT"
           echo "  demo.chainguard.dev/vuln-max-severity=$MAX_SEV"
