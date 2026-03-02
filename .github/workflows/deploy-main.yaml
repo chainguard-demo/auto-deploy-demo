@@ -232,7 +232,7 @@ jobs:
           echo "  demo.chainguard.dev/vuln-critical-high-count=$CRIT_HIGH_COUNT"
           echo "  demo.chainguard.dev/vuln-max-severity=$MAX_SEV"
 
-      - name: Apply manifest with required Gatekeeper annotations (kustomize patch)
+      - name: Apply manifest with required Gatekeeper annotations (deployment + pod template)
         run: |
           set -euo pipefail
 
@@ -240,14 +240,32 @@ jobs:
           MAX_SEV="${{ steps.verdict.outputs.max_sev }}"
           COUNT="${{ steps.verdict.outputs.crit_high }}"
 
+          rm -f kustomization.yaml
+
           cat > kustomization.yaml <<'EOF'
           resources:
             - services/python-web/deployment.yaml
+
           patches:
             - target:
                 kind: Deployment
                 name: python-demo
               patch: |-
+                # --- Deployment object annotations (what Gatekeeper likely checks) ---
+                - op: add
+                  path: /metadata/annotations
+                  value: {}
+                - op: add
+                  path: /metadata/annotations/demo.chainguard.dev~1ci-run-id
+                  value: "__RUN_ID__"
+                - op: add
+                  path: /metadata/annotations/demo.chainguard.dev~1vuln-max-severity
+                  value: "__MAX_SEV__"
+                - op: add
+                  path: /metadata/annotations/demo.chainguard.dev~1vuln-critical-high-count
+                  value: "__COUNT__"
+
+                # --- Pod template annotations (keeps the metadata with the Pod/RS) ---
                 - op: add
                   path: /spec/template/metadata/annotations
                   value: {}
@@ -262,12 +280,9 @@ jobs:
                   value: "__COUNT__"
           EOF
 
-          # Escape any characters that could break sed replacement
-          esc() { printf '%s' "$1" | sed -e 's/[\/&]/\\&/g'; }
-
-          sed -i "s/__RUN_ID__/$(esc "$RUN_ID")/g" kustomization.yaml
-          sed -i "s/__MAX_SEV__/$(esc "$MAX_SEV")/g" kustomization.yaml
-          sed -i "s/__COUNT__/$(esc "$COUNT")/g" kustomization.yaml
+          sed -i "s/__RUN_ID__/${RUN_ID}/g" kustomization.yaml
+          sed -i "s/__MAX_SEV__/${MAX_SEV}/g" kustomization.yaml
+          sed -i "s/__COUNT__/${COUNT}/g" kustomization.yaml
 
           kubectl apply -n "${{ env.NAMESPACE }}" -k .
 
