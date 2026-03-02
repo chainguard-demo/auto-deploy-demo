@@ -295,7 +295,3 @@ jobs:
           kubectl set image -n "${{ env.NAMESPACE }}" \
             deployment/"${{ env.APP_NAME }}" \
             "${{ env.APP_NAME }}"="$IMAGE"
-
-          kubectl rollout status -n "${{ env.NAMESPACE }}" \
-            deployment/"${{ env.APP_NAME }}" \
-            --timeout=10m
