@@ -26,6 +26,9 @@ jobs:
       id-token: write
     outputs:
       image: ${{ steps.out.outputs.image }}
+      ci_run_id: ${{ github.run_id }}
+      vuln_max_severity: ${{ steps.vulnmeta.outputs.max_sev }}
+      vuln_critical_high_count: ${{ steps.vulnmeta.outputs.crit_high }}
 
     steps:
       - uses: actions/checkout@v4
@@ -136,6 +139,36 @@ jobs:
             --predicate vuln-predicate.json \
             "$IMG"
 
+      - name: Compute vuln metadata for admission (max severity + critical/high count)
+        id: vulnmeta
+        run: |
+          set -euo pipefail
+
+          CRIT="$(jq -r '[.matches[]? | select(.vulnerability.severity=="Critical")] | length' grype-new.json)"
+          HIGH="$(jq -r '[.matches[]? | select(.vulnerability.severity=="High")] | length' grype-new.json)"
+          CRIT_HIGH=$((CRIT + HIGH))
+
+          if [ "$CRIT" -gt 0 ]; then
+            MAX="Critical"
+          elif [ "$HIGH" -gt 0 ]; then
+            MAX="High"
+          else
+            MED="$(jq -r '[.matches[]? | select(.vulnerability.severity=="Medium")] | length' grype-new.json)"
+            LOW="$(jq -r '[.matches[]? | select(.vulnerability.severity=="Low")] | length' grype-new.json)"
+            UNK="$(jq -r '[.matches[]? | select(.vulnerability.severity=="Unknown")] | length' grype-new.json)"
+            if [ "$MED" -gt 0 ]; then MAX="Medium"
+            elif [ "$LOW" -gt 0 ]; then MAX="Low"
+            elif [ "$UNK" -gt 0 ]; then MAX="Unknown"
+            else MAX=""
+            fi
+          fi
+
+          echo "crit_high=$CRIT_HIGH" >> "$GITHUB_OUTPUT"
+          echo "max_sev=$MAX" >> "$GITHUB_OUTPUT"
+
+          echo "criticalHighCount=$CRIT_HIGH"
+          echo "maxSeverity=$MAX"
+
   deploy:
     needs: [push-image]
     if: needs.push-image.result == 'success'
@@ -175,6 +208,23 @@ jobs:
         run: |
           set -euo pipefail
           kubectl apply -n "${{ env.NAMESPACE }}" -f services/python-web/deployment.yaml
+
+      - name: Patch deployment template annotations (Gatekeeper input)
+        run: |
+          set -euo pipefail
+          kubectl -n "${{ env.NAMESPACE }}" patch deployment/"${{ env.APP_NAME }}" --type merge -p "{
+            \"spec\": {
+              \"template\": {
+                \"metadata\": {
+                  \"annotations\": {
+                    \"demo.chainguard.dev/ci-run-id\": \"${{ needs.push-image.outputs.ci_run_id }}\",
+                    \"demo.chainguard.dev/vuln-max-severity\": \"${{ needs.push-image.outputs.vuln_max_severity }}\",
+                    \"demo.chainguard.dev/vuln-critical-high-count\": \"${{ needs.push-image.outputs.vuln_critical_high_count }}\"
+                  }
+                }
+              }
+            }
+          }"
 
       - name: Patch deployment image (digest) + rollout
         run: |
