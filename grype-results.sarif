@@ -20,12 +20,12 @@
               },
               "helpUri": "https://github.com/anchore/grype",
               "help": {
-                "text": "Vulnerability CVE-2025-12781\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r6\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-12781](https://nvd.nist.gov/vuln/detail/CVE-2025-12781)",
-                "markdown": "**Vulnerability CVE-2025-12781**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r6  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-12781](https://nvd.nist.gov/vuln/detail/CVE-2025-12781)  |\n"
+                "text": "Vulnerability CVE-2025-12781\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r7\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-12781](https://nvd.nist.gov/vuln/detail/CVE-2025-12781)",
+                "markdown": "**Vulnerability CVE-2025-12781**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r7  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-12781](https://nvd.nist.gov/vuln/detail/CVE-2025-12781)  |\n"
               },
               "properties": {
                 "purls": [
-                  "pkg:apk/chainguard/python-3.12@3.12.12-r6?arch=x86_64\u0026distro=chainguard-20230214"
+                  "pkg:apk/chainguard/python-3.12@3.12.12-r7?arch=x86_64\u0026distro=chainguard-20230214"
                 ],
                 "security-severity": "6.3"
               }
@@ -41,12 +41,12 @@
               },
               "helpUri": "https://github.com/anchore/grype",
               "help": {
-                "text": "Vulnerability CVE-2025-15366\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r6\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-15366](https://nvd.nist.gov/vuln/detail/CVE-2025-15366)",
-                "markdown": "**Vulnerability CVE-2025-15366**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r6  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-15366](https://nvd.nist.gov/vuln/detail/CVE-2025-15366)  |\n"
+                "text": "Vulnerability CVE-2025-15366\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r7\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-15366](https://nvd.nist.gov/vuln/detail/CVE-2025-15366)",
+                "markdown": "**Vulnerability CVE-2025-15366**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r7  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-15366](https://nvd.nist.gov/vuln/detail/CVE-2025-15366)  |\n"
               },
               "properties": {
                 "purls": [
-                  "pkg:apk/chainguard/python-3.12@3.12.12-r6?arch=x86_64\u0026distro=chainguard-20230214"
+                  "pkg:apk/chainguard/python-3.12@3.12.12-r7?arch=x86_64\u0026distro=chainguard-20230214"
                 ],
                 "security-severity": "5.9"
               }
@@ -62,14 +62,35 @@
               },
               "helpUri": "https://github.com/anchore/grype",
               "help": {
-                "text": "Vulnerability CVE-2025-15367\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r6\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-15367](https://nvd.nist.gov/vuln/detail/CVE-2025-15367)",
-                "markdown": "**Vulnerability CVE-2025-15367**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r6  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-15367](https://nvd.nist.gov/vuln/detail/CVE-2025-15367)  |\n"
+                "text": "Vulnerability CVE-2025-15367\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r7\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-15367](https://nvd.nist.gov/vuln/detail/CVE-2025-15367)",
+                "markdown": "**Vulnerability CVE-2025-15367**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r7  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-15367](https://nvd.nist.gov/vuln/detail/CVE-2025-15367)  |\n"
               },
               "properties": {
                 "purls": [
-                  "pkg:apk/chainguard/python-3.12@3.12.12-r6?arch=x86_64\u0026distro=chainguard-20230214"
+                  "pkg:apk/chainguard/python-3.12@3.12.12-r7?arch=x86_64\u0026distro=chainguard-20230214"
                 ],
                 "security-severity": "5.9"
+              }
+            },
+            {
+              "id": "CVE-2026-2297-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-2297 medium vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "The import hook in CPython that handles legacy *.pyc files (SourcelessFileLoader) is incorrectly handled in FileLoader (a base class) and so does not use io.open_code() to read the .pyc files. sys.audit handlers for this audit event therefore do not fire."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-2297\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r7\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-2297](https://nvd.nist.gov/vuln/detail/CVE-2026-2297)",
+                "markdown": "**Vulnerability CVE-2026-2297**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r7  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-2297](https://nvd.nist.gov/vuln/detail/CVE-2026-2297)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.12-r7?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "5.7"
               }
             }
           ]
@@ -80,7 +101,7 @@
           "ruleId": "CVE-2025-12781-python-3.12",
           "level": "warning",
           "message": {
-            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r6 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r7 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
           },
           "locations": [
             {
@@ -98,20 +119,20 @@
               "logicalLocations": [
                 {
                   "name": "/usr/lib/apk/db/installed",
-                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:e771c31adc073e093abde47327b109d9c612f1b2235af39713f4b75f0636fc11:/usr/lib/apk/db/installed"
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:21e39a5f26b56216c570ae54c50584f7916fad8b5cf0c6191355f157a0f44451:/usr/lib/apk/db/installed"
                 }
               ]
             }
           ],
           "partialFingerprints": {
-            "primaryLocationLineHash": "9ccd96c38e88837589b50e239abe9f9e469470436002c6a0e4d95fafa0e87753:1"
+            "primaryLocationLineHash": "08362036d5ee4a1534ca946257e1a5f7d8327ad245c9fbf77f40ee6ef31bcbbf:1"
           }
         },
         {
           "ruleId": "CVE-2025-15366-python-3.12",
           "level": "warning",
           "message": {
-            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r6 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r7 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
           },
           "locations": [
             {
@@ -129,20 +150,20 @@
               "logicalLocations": [
                 {
                   "name": "/usr/lib/apk/db/installed",
-                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:e771c31adc073e093abde47327b109d9c612f1b2235af39713f4b75f0636fc11:/usr/lib/apk/db/installed"
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:21e39a5f26b56216c570ae54c50584f7916fad8b5cf0c6191355f157a0f44451:/usr/lib/apk/db/installed"
                 }
               ]
             }
           ],
           "partialFingerprints": {
-            "primaryLocationLineHash": "9ccd96c38e88837589b50e239abe9f9e469470436002c6a0e4d95fafa0e87753:1"
+            "primaryLocationLineHash": "08362036d5ee4a1534ca946257e1a5f7d8327ad245c9fbf77f40ee6ef31bcbbf:1"
           }
         },
         {
           "ruleId": "CVE-2025-15367-python-3.12",
           "level": "warning",
           "message": {
-            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r6 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r7 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
           },
           "locations": [
             {
@@ -160,13 +181,44 @@
               "logicalLocations": [
                 {
                   "name": "/usr/lib/apk/db/installed",
-                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:e771c31adc073e093abde47327b109d9c612f1b2235af39713f4b75f0636fc11:/usr/lib/apk/db/installed"
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:21e39a5f26b56216c570ae54c50584f7916fad8b5cf0c6191355f157a0f44451:/usr/lib/apk/db/installed"
                 }
               ]
             }
           ],
           "partialFingerprints": {
-            "primaryLocationLineHash": "9ccd96c38e88837589b50e239abe9f9e469470436002c6a0e4d95fafa0e87753:1"
+            "primaryLocationLineHash": "08362036d5ee4a1534ca946257e1a5f7d8327ad245c9fbf77f40ee6ef31bcbbf:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2026-2297-python-3.12",
+          "level": "warning",
+          "message": {
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r7 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:21e39a5f26b56216c570ae54c50584f7916fad8b5cf0c6191355f157a0f44451:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "08362036d5ee4a1534ca946257e1a5f7d8327ad245c9fbf77f40ee6ef31bcbbf:1"
           }
         }
       ]
