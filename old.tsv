@@ -59,6 +59,7 @@ CVE-2026-22795	libcrypto3	3.6.0-r0	3.6.1-r0	Medium
 CVE-2026-22795	libssl3	3.6.0-r0	3.6.1-r0	Medium
 CVE-2026-22796	libcrypto3	3.6.0-r0	3.6.1-r0	Medium
 CVE-2026-22796	libssl3	3.6.0-r0	3.6.1-r0	Medium
+CVE-2026-2297	python-3.12	3.12.11-r8		Medium
 CVE-2026-27171	zlib	1.3.1-r51	1.3.2-r0	Medium
 GHSA-399h-rrqc-rpgv	python-3.12	3.12.11-r8	3.12.12-r4	Unknown
 GHSA-399h-rrqc-rpgv	python-3.12-base	3.12.11-r8	3.12.12-r4	Unknown
