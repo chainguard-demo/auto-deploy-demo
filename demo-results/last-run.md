@@ -68,6 +68,7 @@
 | `CVE-2026-22795` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2026-22796` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2026-22796` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
+| `CVE-2026-2297` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **Medium** |
 | `CVE-2026-27171` | `zlib` | `1.3.1-r51` | `1.3.2-r0` | **Medium** |
 | `GHSA-399h-rrqc-rpgv` | `python-3.12` | `3.12.11-r8` | `3.12.12-r4` | **Unknown** |
 | `GHSA-399h-rrqc-rpgv` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r4` | **Unknown** |
@@ -134,13 +135,14 @@
 
 ```text
 NAME         INSTALLED   FIXED-IN  TYPE  VULNERABILITY   SEVERITY 
-python-3.12  3.12.12-r6            apk   CVE-2025-12781  Medium    
-python-3.12  3.12.12-r6            apk   CVE-2025-15366  Medium    
-python-3.12  3.12.12-r6            apk   CVE-2025-15367  Medium
+python-3.12  3.12.12-r7            apk   CVE-2025-12781  Medium    
+python-3.12  3.12.12-r7            apk   CVE-2025-15366  Medium    
+python-3.12  3.12.12-r7            apk   CVE-2025-15367  Medium    
+python-3.12  3.12.12-r7            apk   CVE-2026-2297   Medium
 ```
 
 ## Prisma Cloud
 
-https://app.prismacloud.io/compute?computeState=/monitor/vulnerabilities/images/ci?search%3Dsha256%253A0539948bd980554874c438e2a24a245b3c90c6be7c473d9c4d267c5ffe3e390f
+https://app.prismacloud.io/compute?computeState=/monitor/vulnerabilities/images/ci?search%3Dsha256%253Aebac0b192ca653240b727e756a775976c69e8e1f0ffaaa128230521516b583a8
 
-run_id=22591629943
+run_id=22917399238
