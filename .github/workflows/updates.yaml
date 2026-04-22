@@ -8,7 +8,7 @@ on:
 env:
   # Core demo images (set these to the pair you want to demonstrate)
   DEMO_OLD_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.11"
-  DEMO_NEW_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.12"
+  DEMO_NEW_IMAGE: "cgr.dev/cgr-demo.com/python:3.12.13"
 
   # Toggle scanners
   SCAN_WITH_GRYPE: "true"

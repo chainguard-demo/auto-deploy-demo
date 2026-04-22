@@ -6,7 +6,7 @@ on:
 
 env:
   AWS_REGION: us-west-2
-  EKS_CLUSTER_NAME: fpd2-eks
+  EKS_CLUSTER_NAME: fpd-eks
 
   ECR_REPO: python-openssl
 
