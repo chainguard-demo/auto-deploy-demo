@@ -58,7 +58,7 @@ jobs:
         run: |
           CURRENT_UNIQUE_IMAGE=$(yq '.image.tag' helm/redis/values.yaml)
           echo "Extracted Unique Tags: $CURRENT_UNIQUE_IMAGE"
-          echo "CURRENT_UNIQUE_TAG=$CURRENT_UNIQUE_IMAGE" >> $GITHUB_ENV
+          echo "CURRENT_UNIQUE_TAG=$CURRENT_UNIQUE_IMAGE" >> "$GITHUB_ENV"
       
       - name: Setup image full ref env var
         id: setup_full_image_ref

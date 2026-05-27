@@ -322,7 +322,7 @@ jobs:
         run: |
           set -euo pipefail
           results_file="${PRISMA_RESULTS_FILE}"
-          PRISMA_CLOUD_URL="$(cat "$results_file" | jq -r '.consoleURL')"
+          PRISMA_CLOUD_URL="$(jq -r '.consoleURL' "$results_file")"
           echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL" >> "$GITHUB_ENV"
 
       - name: Append Prisma link to PR body
