@@ -28,20 +28,20 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Go environment
-        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
           cache: false
 
       # Token used for PR creation etc. (your existing Octo STS setup)
-      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts
         with:
           scope: chainguard-demo/auto-deploy-demo
@@ -60,9 +60,9 @@ jobs:
           grype version
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
 
-      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262
+      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262 # v0.2.4
         with:
           identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
 
@@ -290,7 +290,7 @@ jobs:
 
       - name: Upload Grype SARIF results
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
-        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5
+        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5 # v3.28.11
         with:
           sarif_file: grype-results.sarif
 
@@ -310,7 +310,7 @@ jobs:
 
       - name: Upload Prisma Cloud SARIF file
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
-        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5
+        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5 # v3.28.11
         with:
           sarif_file: ${{ steps.prismascan.outputs.sarif_file }}
 

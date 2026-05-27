@@ -36,7 +36,7 @@ jobs:
         run: echo "ci_run_id=${{ github.run_id }}" >> "$GITHUB_OUTPUT"
 
       - name: Setup Go environment
-        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
           cache: false
 
@@ -58,7 +58,7 @@ jobs:
           crane version
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
 
       - name: Install Grype (pinned release)
         run: |
@@ -68,7 +68,7 @@ jobs:
             | tar -xz -C /usr/local/bin grype
           grype version
 
-      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262
+      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262 # v0.2.4
         with:
           identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
 
