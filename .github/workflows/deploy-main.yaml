@@ -29,26 +29,28 @@ jobs:
       ci_run_id: ${{ steps.runid.outputs.ci_run_id }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
 
       - name: Set CI run id output
         id: runid
-        run: echo "ci_run_id=${{ github.run_id }}" >> "$GITHUB_OUTPUT"
+        run: echo "ci_run_id=$GITHUB_RUN_ID" >> "$GITHUB_OUTPUT"
 
       - name: Setup Go environment
-        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
           cache: false
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: ${{ secrets.FPD_AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@fa648b43de3d4d023bcb3f89ed6940096949c419 # v2.1.5
 
       - name: Install crane
         run: |
@@ -58,7 +60,7 @@ jobs:
           crane version
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
 
       - name: Install Grype (pinned release)
         run: |
@@ -68,7 +70,7 @@ jobs:
             | tar -xz -C /usr/local/bin grype
           grype version
 
-      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262
+      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262 # v0.2.4
         with:
           identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
 
@@ -87,18 +89,21 @@ jobs:
 
       - name: Copy image to ECR (and output digest-pinned ref)
         id: out
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          SRC: ${{ steps.src.outputs.src }}
         run: |
           set -euo pipefail
-          ECR="${{ steps.login-ecr.outputs.registry }}"
-          TAG="${{ github.sha }}"
-          DST_REPO="${ECR}/${{ env.ECR_REPO }}"
+          ECR="${REGISTRY}"
+          TAG="${GITHUB_SHA}"
+          DST_REPO="${ECR}/${ECR_REPO}"
           DST="${DST_REPO}:${TAG}"
 
           echo "Copying:"
-          echo "  SRC=${{ steps.src.outputs.src }}"
+          echo "  SRC=${SRC}"
           echo "  DST=$DST"
 
-          crane copy "${{ steps.src.outputs.src }}" "$DST"
+          crane copy "${SRC}" "$DST"
 
           DIGEST="$(crane digest "$DST")"
           DST_REF="${DST_REPO}@${DIGEST}"
@@ -109,16 +114,18 @@ jobs:
       - name: Keyless sign ECR image (GitHub OIDC)
         env:
           COSIGN_EXPERIMENTAL: "1"
+          IMAGE: ${{ steps.out.outputs.image }}
         run: |
           set -euo pipefail
-          cosign sign --yes "${{ steps.out.outputs.image }}"
+          cosign sign --yes "${IMAGE}"
 
       - name: Keyless attest Grype vulnerability predicate to ECR image
         env:
           COSIGN_EXPERIMENTAL: "1"
+          IMAGE: ${{ steps.out.outputs.image }}
         run: |
           set -euo pipefail
-          IMG="${{ steps.out.outputs.image }}"
+          IMG="${IMAGE}"
 
           grype "$IMG" -o json > grype-new.json
 
@@ -150,17 +157,19 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
         with:
           role-to-assume: ${{ secrets.FPD_AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
   
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@fa648b43de3d4d023bcb3f89ed6940096949c419 # v2.1.5
 
       - name: Install Grype (pinned release)
         run: |
@@ -171,7 +180,7 @@ jobs:
           grype version
 
       - name: Install kubectl
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4.0.1
         with:
           version: "v1.33.0"
 
@@ -179,21 +188,24 @@ jobs:
         run: |
           set -euo pipefail
           aws eks update-kubeconfig \
-            --region "${{ env.AWS_REGION }}" \
-            --name "${{ env.EKS_CLUSTER_NAME }}"
+            --region "${AWS_REGION}" \
+            --name "${EKS_CLUSTER_NAME}"
           kubectl cluster-info
 
       - name: Ensure namespace exists
         run: |
-          kubectl get namespace "${{ env.NAMESPACE }}" \
-            || kubectl create namespace "${{ env.NAMESPACE }}"
+          kubectl get namespace "${NAMESPACE}" \
+            || kubectl create namespace "${NAMESPACE}"
 
       - name: Compute vuln verdict annotations (max severity + critical/high count)
         id: verdict
+        env:
+          PUSH_IMAGE_IMAGE: ${{ needs.push-image.outputs.image }}
+          PUSH_IMAGE_CI_RUN_ID: ${{ needs.push-image.outputs.ci_run_id }}
         run: |
           set -euo pipefail
 
-          IMAGE="${{ needs.push-image.outputs.image }}"
+          IMAGE="${PUSH_IMAGE_IMAGE}"
           echo "Scanning image for admission metadata: $IMAGE"
 
           # If you're scanning a private ECR image, you MUST be logged in earlier in this job:
@@ -228,17 +240,21 @@ jobs:
           echo "max_sev=$MAX_SEV" >> "$GITHUB_OUTPUT"
 
           echo "Computed (for Gatekeeper annotations):"
-          echo "  demo.chainguard.dev/ci-run-id=${{ needs.push-image.outputs.ci_run_id }}"
+          echo "  demo.chainguard.dev/ci-run-id=${PUSH_IMAGE_CI_RUN_ID}"
           echo "  demo.chainguard.dev/vuln-critical-high-count=$CRIT_HIGH_COUNT"
           echo "  demo.chainguard.dev/vuln-max-severity=$MAX_SEV"
 
       - name: Apply manifest with required Gatekeeper annotations (deployment + pod template)
+        env:
+          PUSH_IMAGE_CI_RUN_ID: ${{ needs.push-image.outputs.ci_run_id }}
+          VERDICT_MAX_SEV: ${{ steps.verdict.outputs.max_sev }}
+          VERDICT_CRIT_HIGH: ${{ steps.verdict.outputs.crit_high }}
         run: |
           set -euo pipefail
 
-          RUN_ID="${{ needs.push-image.outputs.ci_run_id }}"
-          MAX_SEV="${{ steps.verdict.outputs.max_sev }}"
-          COUNT="${{ steps.verdict.outputs.crit_high }}"
+          RUN_ID="${PUSH_IMAGE_CI_RUN_ID}"
+          MAX_SEV="${VERDICT_MAX_SEV}"
+          COUNT="${VERDICT_CRIT_HIGH}"
 
           rm -f kustomization.yaml
 
@@ -284,14 +300,16 @@ jobs:
           sed -i "s/__MAX_SEV__/${MAX_SEV}/g" kustomization.yaml
           sed -i "s/__COUNT__/${COUNT}/g" kustomization.yaml
 
-          kubectl apply -n "${{ env.NAMESPACE }}" -k .
+          kubectl apply -n "${NAMESPACE}" -k .
 
       - name: Patch deployment image (digest) + rollout
+        env:
+          PUSH_IMAGE_IMAGE: ${{ needs.push-image.outputs.image }}
         run: |
           set -euo pipefail
-          IMAGE="${{ needs.push-image.outputs.image }}"
+          IMAGE="${PUSH_IMAGE_IMAGE}"
           echo "Deploying image: $IMAGE"
 
-          kubectl set image -n "${{ env.NAMESPACE }}" \
-            deployment/"${{ env.APP_NAME }}" \
-            "${{ env.APP_NAME }}"="$IMAGE"
+          kubectl set image -n "${NAMESPACE}" \
+            deployment/"${APP_NAME}" \
+            "${APP_NAME}"="$IMAGE"

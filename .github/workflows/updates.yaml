@@ -28,20 +28,22 @@ jobs:
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Setup Go environment
-        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
           cache: false
 
       # Token used for PR creation etc. (your existing Octo STS setup)
-      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f
+      - uses: octo-sts/action@6177b4481c00308b3839969c3eca88c96a91775f # v1.0.0
         id: octo-sts
         with:
           scope: chainguard-demo/auto-deploy-demo
@@ -60,9 +62,9 @@ jobs:
           grype version
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
 
-      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262
+      - uses: chainguard-dev/setup-chainctl@8d93dcbef466d3cf3533f67084f52eb74ef9d262 # v0.2.4
         with:
           identity: "4cf15780a13a9b6576d8b357e6524554c8c12a18/a662f56b58103354"
 
@@ -71,10 +73,10 @@ jobs:
 
       - name: Current Image and New Image Provided by Chainguard SLA
         run: |
-          echo "OLD_IMAGE=${{ env.DEMO_OLD_IMAGE }}" >> "$GITHUB_ENV"
-          echo "NEW_IMAGE=${{ env.DEMO_NEW_IMAGE }}" >> "$GITHUB_ENV"
-          echo "OLD_IMAGE=${{ env.DEMO_OLD_IMAGE }}"
-          echo "NEW_IMAGE=${{ env.DEMO_NEW_IMAGE }}"
+          echo "OLD_IMAGE=${DEMO_OLD_IMAGE}" >> "$GITHUB_ENV"
+          echo "NEW_IMAGE=${DEMO_NEW_IMAGE}" >> "$GITHUB_ENV"
+          echo "OLD_IMAGE=${DEMO_OLD_IMAGE}"
+          echo "NEW_IMAGE=${DEMO_NEW_IMAGE}"
 
       - name: Cosign verify new image signature
         run: |
@@ -84,15 +86,14 @@ jobs:
           cosign verify \
             --certificate-oidc-issuer=https://issuer.enforce.dev \
             --certificate-identity-regexp="https://issuer.enforce.dev/(${CATALOG_SYNCER}|${APKO_BUILDER})" \
-            "${{ env.NEW_IMAGE }}" | jq
+            "${NEW_IMAGE}" | jq
 
       - name: Run chainctl images diff + build PR summary
         id: diff_vulnerabilities
         run: |
           set -euo pipefail
 
-          OLD_IMAGE="${{ env.OLD_IMAGE }}"
-          NEW_IMAGE="${{ env.NEW_IMAGE }}"
+          # OLD_IMAGE / NEW_IMAGE are set by the previous step via $GITHUB_ENV.
 
           echo "FIX_CVE=false" >> "$GITHUB_ENV"
 
@@ -200,8 +201,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          OLD="${{ env.OLD_IMAGE }}"
-          NEW="${{ env.NEW_IMAGE }}"
+          OLD="${OLD_IMAGE}"
+          NEW="${NEW_IMAGE}"
 
           # Scan both images in JSON mode
           grype "$OLD" -o json > grype-old.json
@@ -277,26 +278,26 @@ jobs:
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
         run: |
           set -euo pipefail
-          grype "${{ env.NEW_IMAGE }}" -o sarif > grype-results.sarif
+          grype "${NEW_IMAGE}" -o sarif > grype-results.sarif
 
           {
             echo ""
             echo "## Grype summary (top findings)"
             echo ""
             echo '```text'
-            grype "${{ env.NEW_IMAGE }}" 2>&1 | head -n 120
+            grype "${NEW_IMAGE}" 2>&1 | head -n 120
             echo '```'
           } >> PR_BODY.md
 
       - name: Upload Grype SARIF results
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_GRYPE == 'true'
-        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5
+        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5 # v3.28.11
         with:
           sarif_file: grype-results.sarif
 
       - name: Pre-pull docker image for Prisma Cloud scan
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
-        run: docker pull "${{ env.NEW_IMAGE }}"
+        run: docker pull "${NEW_IMAGE}"
 
       - name: Prisma Cloud image scan
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
@@ -310,16 +311,18 @@ jobs:
 
       - name: Upload Prisma Cloud SARIF file
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
-        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5
+        uses: github/codeql-action/upload-sarif@6bb031afdd8eb862ea3fc1848194185e076637e5 # v3.28.11
         with:
           sarif_file: ${{ steps.prismascan.outputs.sarif_file }}
 
       - name: Extract Prisma Cloud Console Link
         if: env.FIX_CVE == 'true' && env.SCAN_WITH_PRISMA_CLOUD == 'true'
+        env:
+          PRISMA_RESULTS_FILE: ${{ steps.prismascan.outputs.results_file }}
         run: |
           set -euo pipefail
-          results_file="${{ steps.prismascan.outputs.results_file }}"
-          PRISMA_CLOUD_URL="$(cat "$results_file" | jq -r '.consoleURL')"
+          results_file="${PRISMA_RESULTS_FILE}"
+          PRISMA_CLOUD_URL="$(jq -r '.consoleURL' "$results_file")"
           echo "PRISMA_CLOUD_URL=$PRISMA_CLOUD_URL" >> "$GITHUB_ENV"
 
       - name: Append Prisma link to PR body
@@ -330,7 +333,7 @@ jobs:
             echo ""
             echo "## Prisma Cloud"
             echo ""
-            echo "${{ env.PRISMA_CLOUD_URL }}"
+            echo "${PRISMA_CLOUD_URL}"
           } >> PR_BODY.md
 
       # Always create a diff to PR when FIX_CVE=true
@@ -345,11 +348,11 @@ jobs:
           cp PR_BODY.md demo-results/last-run.md
 
           # Record the NEW image so the deploy workflow can read it after merge
-          echo "${{ env.NEW_IMAGE }}" > demo-results/new-image.txt
+          echo "${NEW_IMAGE}" > demo-results/new-image.txt
 
           # Force a guaranteed change (even if content repeats)
           echo "" >> demo-results/last-run.md
-          echo "run_id=${{ github.run_id }}" >> demo-results/last-run.md
+          echo "run_id=${GITHUB_RUN_ID}" >> demo-results/last-run.md
 
           git add demo-results/last-run.md demo-results/new-image.txt
 
