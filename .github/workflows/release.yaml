@@ -63,8 +63,8 @@ jobs:
       - name: Setup image full ref env var
         id: setup_full_image_ref
         run: |
-          REDIS_IMAGE_FULL_REF="${{ env.REDIS_IMAGE_NAME }}:${{ env.CURRENT_UNIQUE_TAG }}"
-          echo "REDIS_IMAGE_FULL_REF=$REDIS_IMAGE_FULL_REF" >> $GITHUB_ENV
+          REDIS_IMAGE_FULL_REF="${REDIS_IMAGE_NAME}:${CURRENT_UNIQUE_TAG}"
+          echo "REDIS_IMAGE_FULL_REF=$REDIS_IMAGE_FULL_REF" >> "$GITHUB_ENV"
   
       - name: 'Verify Redis Image Signature && pre-pull image'
         run: |
@@ -75,8 +75,8 @@ jobs:
           cosign verify \
               --certificate-oidc-issuer=https://issuer.enforce.dev \
               --certificate-identity-regexp="https://issuer.enforce.dev/(${CATALOG_SYNCER}|${APKO_BUILDER})" \
-              ${{ env.REDIS_IMAGE_FULL_REF }} | jq        
-          docker pull ${{ env.REDIS_IMAGE_FULL_REF }}
+              "${REDIS_IMAGE_FULL_REF}" | jq
+          docker pull "${REDIS_IMAGE_FULL_REF}"
       
       - name: Add Bitnami Helm repository
         run: |
@@ -90,7 +90,7 @@ jobs:
   
       - name: Check if image is available in kind cluster
         run: |
-          kind load docker-image ${{ env.REDIS_IMAGE_FULL_REF }} --name kind-smoke-test
+          kind load docker-image "${REDIS_IMAGE_FULL_REF}" --name kind-smoke-test
           echo "Image loaded into Kind cluster"
   
       - name: Deploy Redis Image using Helm

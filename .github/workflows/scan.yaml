@@ -49,12 +49,12 @@ jobs:
       - name: 'Auth to Registry'
         run: |
           chainctl auth configure-docker
-          docker pull "${{ env.REDIS_ORIG_IMAGE }}"
-          
+          docker pull "${REDIS_ORIG_IMAGE}"
+
       - name: Scan Image with Grype
         if: ${{ env.SCAN_WITH_GRYPE == 'true' }}
         run: |
-          grype "${{ env.REDIS_ORIG_IMAGE }}" -o sarif > grype-results.sarif
+          grype "${REDIS_ORIG_IMAGE}" -o sarif > grype-results.sarif
           cat grype-results.sarif
           
       - name: Upload Grype SARIF results
