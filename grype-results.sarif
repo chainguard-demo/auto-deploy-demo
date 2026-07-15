@@ -10,6 +10,132 @@
           "informationUri": "https://github.com/anchore/grype",
           "rules": [
             {
+              "id": "CVE-2026-15308-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-15308 high vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "The incremental HTML parser (html.parser.HTMLParser) allows for CPU\ndenial-of-service through repeated unterminated markup declarations when\nprocessing uncontrolled data."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-15308\nSeverity: high\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-15308](https://nvd.nist.gov/vuln/detail/CVE-2026-15308)",
+                "markdown": "**Vulnerability CVE-2026-15308**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| high  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-15308](https://nvd.nist.gov/vuln/detail/CVE-2026-15308)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "8.7"
+              }
+            },
+            {
+              "id": "CVE-2026-3644-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-3644 high vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "The fix for CVE-2026-0672, which rejected control characters in http.cookies.Morsel, was incomplete. The Morsel.update(), |= operator, and unpickling paths were not patched, allowing control characters to bypass input validation. Additionally, BaseCookie.js_output() lacked the output validation applied to BaseCookie.output()."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-3644\nSeverity: high\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-3644](https://nvd.nist.gov/vuln/detail/CVE-2026-3644)",
+                "markdown": "**Vulnerability CVE-2026-3644**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| high  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-3644](https://nvd.nist.gov/vuln/detail/CVE-2026-3644)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "7.5"
+              }
+            },
+            {
+              "id": "CVE-2026-4224-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-4224 high vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "When an Expat parser with a registered ElementDeclHandler parses an inline\ndocument type definition containing a deeply nested content model a C stack\noverflow occurs."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-4224\nSeverity: high\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-4224](https://nvd.nist.gov/vuln/detail/CVE-2026-4224)",
+                "markdown": "**Vulnerability CVE-2026-4224**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| high  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-4224](https://nvd.nist.gov/vuln/detail/CVE-2026-4224)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "7.5"
+              }
+            },
+            {
+              "id": "CVE-2026-4786-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-4786 high vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "Mitgation of CVE-2026-4519 was incomplete. If the URL contained \"%action\" the mitigation could be bypassed for certain browser types the \"webbrowser.open()\" API could have commands injected into the underlying shell. See CVE-2026-4519 for details."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-4786\nSeverity: high\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-4786](https://nvd.nist.gov/vuln/detail/CVE-2026-4786)",
+                "markdown": "**Vulnerability CVE-2026-4786**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| high  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-4786](https://nvd.nist.gov/vuln/detail/CVE-2026-4786)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "7.1"
+              }
+            },
+            {
+              "id": "CVE-2026-7210-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-7210 high vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "`xml.parsers.expat` and `xml.etree.ElementTree` use insufficient entropy for Expat hash-flooding protection, which allows a crafted XML document to trigger hash flooding.\\r\\n\\r\\nFully mitigating this vulnerability requires both updating libexpat to 2.8.0 or later and applying this patch."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-7210\nSeverity: high\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-7210](https://nvd.nist.gov/vuln/detail/CVE-2026-7210)",
+                "markdown": "**Vulnerability CVE-2026-7210**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| high  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-7210](https://nvd.nist.gov/vuln/detail/CVE-2026-7210)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "7.5"
+              }
+            },
+            {
+              "id": "CVE-2026-9669-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-9669 high vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "bz2.BZ2Decompressor objects could be reused after a decompression error. If an application caught the resulting OSError and retried with the same decompressor, crafted input could cause the decompressor to resume from an invalid internal state and perform out-of-bounds writes to a stack buffer. This could crash the process when processing untrusted data."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-9669\nSeverity: high\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-9669](https://nvd.nist.gov/vuln/detail/CVE-2026-9669)",
+                "markdown": "**Vulnerability CVE-2026-9669**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| high  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-9669](https://nvd.nist.gov/vuln/detail/CVE-2026-9669)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "8.2"
+              }
+            },
+            {
               "id": "CVE-2025-12781-python-3.12",
               "name": "ApkMatcherCpeMatch",
               "shortDescription": {
@@ -20,12 +146,12 @@
               },
               "helpUri": "https://github.com/anchore/grype",
               "help": {
-                "text": "Vulnerability CVE-2025-12781\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r7\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-12781](https://nvd.nist.gov/vuln/detail/CVE-2025-12781)",
-                "markdown": "**Vulnerability CVE-2025-12781**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r7  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-12781](https://nvd.nist.gov/vuln/detail/CVE-2025-12781)  |\n"
+                "text": "Vulnerability CVE-2025-12781\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-12781](https://nvd.nist.gov/vuln/detail/CVE-2025-12781)",
+                "markdown": "**Vulnerability CVE-2025-12781**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-12781](https://nvd.nist.gov/vuln/detail/CVE-2025-12781)  |\n"
               },
               "properties": {
                 "purls": [
-                  "pkg:apk/chainguard/python-3.12@3.12.12-r7?arch=x86_64\u0026distro=chainguard-20230214"
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
                 ],
                 "security-severity": "6.3"
               }
@@ -41,12 +167,12 @@
               },
               "helpUri": "https://github.com/anchore/grype",
               "help": {
-                "text": "Vulnerability CVE-2025-15366\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r7\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-15366](https://nvd.nist.gov/vuln/detail/CVE-2025-15366)",
-                "markdown": "**Vulnerability CVE-2025-15366**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r7  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-15366](https://nvd.nist.gov/vuln/detail/CVE-2025-15366)  |\n"
+                "text": "Vulnerability CVE-2025-15366\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-15366](https://nvd.nist.gov/vuln/detail/CVE-2025-15366)",
+                "markdown": "**Vulnerability CVE-2025-15366**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-15366](https://nvd.nist.gov/vuln/detail/CVE-2025-15366)  |\n"
               },
               "properties": {
                 "purls": [
-                  "pkg:apk/chainguard/python-3.12@3.12.12-r7?arch=x86_64\u0026distro=chainguard-20230214"
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
                 ],
                 "security-severity": "5.9"
               }
@@ -62,12 +188,12 @@
               },
               "helpUri": "https://github.com/anchore/grype",
               "help": {
-                "text": "Vulnerability CVE-2025-15367\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r7\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-15367](https://nvd.nist.gov/vuln/detail/CVE-2025-15367)",
-                "markdown": "**Vulnerability CVE-2025-15367**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r7  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-15367](https://nvd.nist.gov/vuln/detail/CVE-2025-15367)  |\n"
+                "text": "Vulnerability CVE-2025-15367\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-15367](https://nvd.nist.gov/vuln/detail/CVE-2025-15367)",
+                "markdown": "**Vulnerability CVE-2025-15367**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-15367](https://nvd.nist.gov/vuln/detail/CVE-2025-15367)  |\n"
               },
               "properties": {
                 "purls": [
-                  "pkg:apk/chainguard/python-3.12@3.12.12-r7?arch=x86_64\u0026distro=chainguard-20230214"
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
                 ],
                 "security-severity": "5.9"
               }
@@ -83,14 +209,98 @@
               },
               "helpUri": "https://github.com/anchore/grype",
               "help": {
-                "text": "Vulnerability CVE-2026-2297\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.12-r7\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-2297](https://nvd.nist.gov/vuln/detail/CVE-2026-2297)",
-                "markdown": "**Vulnerability CVE-2026-2297**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.12-r7  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-2297](https://nvd.nist.gov/vuln/detail/CVE-2026-2297)  |\n"
+                "text": "Vulnerability CVE-2026-2297\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-2297](https://nvd.nist.gov/vuln/detail/CVE-2026-2297)",
+                "markdown": "**Vulnerability CVE-2026-2297**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-2297](https://nvd.nist.gov/vuln/detail/CVE-2026-2297)  |\n"
               },
               "properties": {
                 "purls": [
-                  "pkg:apk/chainguard/python-3.12@3.12.12-r7?arch=x86_64\u0026distro=chainguard-20230214"
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
                 ],
                 "security-severity": "5.7"
+              }
+            },
+            {
+              "id": "CVE-2026-3446-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-3446 medium vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "When calling base64.b64decode() or related functions the decoding process would stop after encountering the first padded quad regardless of whether there was more information to be processed. This can lead to data being accepted which may be processed differently by other implementations. Use \"validate=True\" to enable stricter processing of base64 data."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-3446\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-3446](https://nvd.nist.gov/vuln/detail/CVE-2026-3446)",
+                "markdown": "**Vulnerability CVE-2026-3446**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-3446](https://nvd.nist.gov/vuln/detail/CVE-2026-3446)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "6.0"
+              }
+            },
+            {
+              "id": "CVE-2026-6019-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-6019 medium vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "http.cookies.Morsel.js_output() returns an inline \u003cscript\u003e snippet and only escapes \" for JavaScript string context. It does not neutralize the HTML parser-sensitive sequence \u003c/script\u003e inside the generated script element. Mitigation base64-encodes the cookie value to disallow escaping using cookie value."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-6019\nSeverity: medium\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-6019](https://nvd.nist.gov/vuln/detail/CVE-2026-6019)",
+                "markdown": "**Vulnerability CVE-2026-6019**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| medium  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-6019](https://nvd.nist.gov/vuln/detail/CVE-2026-6019)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "6.1"
+              }
+            },
+            {
+              "id": "CVE-2025-13462-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2025-13462 low vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "The \"tarfile\" module would still apply normalization of AREGTYPE (\\x00) blocks to DIRTYPE, even while processing a multi-block member such as GNUTYPE_LONGNAME or GNUTYPE_LONGLINK. This could result in a crafted tar archive being misinterpreted by the tarfile module compared to other implementations."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2025-13462\nSeverity: low\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2025-13462](https://nvd.nist.gov/vuln/detail/CVE-2025-13462)",
+                "markdown": "**Vulnerability CVE-2025-13462**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| low  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2025-13462](https://nvd.nist.gov/vuln/detail/CVE-2025-13462)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "3.3"
+              }
+            },
+            {
+              "id": "CVE-2026-3479-python-3.12",
+              "name": "ApkMatcherCpeMatch",
+              "shortDescription": {
+                "text": "CVE-2026-3479 low vulnerability for python-3.12 package"
+              },
+              "fullDescription": {
+                "text": "DISPUTED: The project has clarified that the documentation was incorrect, and that pkgutil.get_data() has the same security model as open(). The documentation has been updated to clarify this point. There is no vulnerability in the function if following the intended security model.\n\npkgutil.get_data() did not validate the resource argument as documented, allowing path traversals."
+              },
+              "helpUri": "https://github.com/anchore/grype",
+              "help": {
+                "text": "Vulnerability CVE-2026-3479\nSeverity: low\nPackage: python-3.12\nVersion: 3.12.13-r10\nFix Version: \nType: apk\nLocation: /usr/lib/apk/db/installed\nData Namespace: nvd:cpe\nLink: [CVE-2026-3479](https://nvd.nist.gov/vuln/detail/CVE-2026-3479)",
+                "markdown": "**Vulnerability CVE-2026-3479**\n| Severity | Package | Version | Fix Version | Type | Location | Data Namespace | Link |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| low  | python-3.12  | 3.12.13-r10  |   | apk  | /usr/lib/apk/db/installed  | nvd:cpe  | [CVE-2026-3479](https://nvd.nist.gov/vuln/detail/CVE-2026-3479)  |\n"
+              },
+              "properties": {
+                "purls": [
+                  "pkg:apk/chainguard/python-3.12@3.12.13-r10?arch=x86_64\u0026distro=chainguard-20230214"
+                ],
+                "security-severity": "0.0"
               }
             }
           ]
@@ -98,10 +308,10 @@
       },
       "results": [
         {
-          "ruleId": "CVE-2025-12781-python-3.12",
-          "level": "warning",
+          "ruleId": "CVE-2026-15308-python-3.12",
+          "level": "error",
           "message": {
-            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r7 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
+            "text": "A high vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
           },
           "locations": [
             {
@@ -119,20 +329,206 @@
               "logicalLocations": [
                 {
                   "name": "/usr/lib/apk/db/installed",
-                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:21e39a5f26b56216c570ae54c50584f7916fad8b5cf0c6191355f157a0f44451:/usr/lib/apk/db/installed"
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
                 }
               ]
             }
           ],
           "partialFingerprints": {
-            "primaryLocationLineHash": "08362036d5ee4a1534ca946257e1a5f7d8327ad245c9fbf77f40ee6ef31bcbbf:1"
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2026-3644-python-3.12",
+          "level": "error",
+          "message": {
+            "text": "A high vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2026-4224-python-3.12",
+          "level": "error",
+          "message": {
+            "text": "A high vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2026-4786-python-3.12",
+          "level": "error",
+          "message": {
+            "text": "A high vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2026-7210-python-3.12",
+          "level": "error",
+          "message": {
+            "text": "A high vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2026-9669-python-3.12",
+          "level": "error",
+          "message": {
+            "text": "A high vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2025-12781-python-3.12",
+          "level": "warning",
+          "message": {
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
           }
         },
         {
           "ruleId": "CVE-2025-15366-python-3.12",
           "level": "warning",
           "message": {
-            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r7 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
           },
           "locations": [
             {
@@ -150,20 +546,20 @@
               "logicalLocations": [
                 {
                   "name": "/usr/lib/apk/db/installed",
-                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:21e39a5f26b56216c570ae54c50584f7916fad8b5cf0c6191355f157a0f44451:/usr/lib/apk/db/installed"
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
                 }
               ]
             }
           ],
           "partialFingerprints": {
-            "primaryLocationLineHash": "08362036d5ee4a1534ca946257e1a5f7d8327ad245c9fbf77f40ee6ef31bcbbf:1"
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
           }
         },
         {
           "ruleId": "CVE-2025-15367-python-3.12",
           "level": "warning",
           "message": {
-            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r7 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
           },
           "locations": [
             {
@@ -181,20 +577,20 @@
               "logicalLocations": [
                 {
                   "name": "/usr/lib/apk/db/installed",
-                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:21e39a5f26b56216c570ae54c50584f7916fad8b5cf0c6191355f157a0f44451:/usr/lib/apk/db/installed"
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
                 }
               ]
             }
           ],
           "partialFingerprints": {
-            "primaryLocationLineHash": "08362036d5ee4a1534ca946257e1a5f7d8327ad245c9fbf77f40ee6ef31bcbbf:1"
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
           }
         },
         {
           "ruleId": "CVE-2026-2297-python-3.12",
           "level": "warning",
           "message": {
-            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.12-r7 was found in image cgr.dev/cgr-demo.com/python:3.12.12 at: /usr/lib/apk/db/installed"
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
           },
           "locations": [
             {
@@ -212,13 +608,137 @@
               "logicalLocations": [
                 {
                   "name": "/usr/lib/apk/db/installed",
-                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.12@sha256:21e39a5f26b56216c570ae54c50584f7916fad8b5cf0c6191355f157a0f44451:/usr/lib/apk/db/installed"
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
                 }
               ]
             }
           ],
           "partialFingerprints": {
-            "primaryLocationLineHash": "08362036d5ee4a1534ca946257e1a5f7d8327ad245c9fbf77f40ee6ef31bcbbf:1"
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2026-3446-python-3.12",
+          "level": "warning",
+          "message": {
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2026-6019-python-3.12",
+          "level": "warning",
+          "message": {
+            "text": "A medium vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2025-13462-python-3.12",
+          "level": "note",
+          "message": {
+            "text": "A low vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
+          }
+        },
+        {
+          "ruleId": "CVE-2026-3479-python-3.12",
+          "level": "note",
+          "message": {
+            "text": "A low vulnerability in apk package: python-3.12, version 3.12.13-r10 was found in image cgr.dev/cgr-demo.com/python:3.12.13 at: /usr/lib/apk/db/installed"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "python//usr/lib/apk/db/installed"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "logicalLocations": [
+                {
+                  "name": "/usr/lib/apk/db/installed",
+                  "fullyQualifiedName": "cgr.dev/cgr-demo.com/python:3.12.13@sha256:9cf20eee71257d9599aa3e93adb8154a91c3180925c3488373ddecf8692b42f8:/usr/lib/apk/db/installed"
+                }
+              ]
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "ce79e068524846118999c61751c352728388adfe7c5df71c567b6939dd0326c5:1"
           }
         }
       ]
