@@ -1,7 +1,7 @@
 # CVE Fix Summary
 
 **OLD_IMAGE:** `cgr.dev/cgr-demo.com/python:3.12.11`
-**NEW_IMAGE:** `cgr.dev/cgr-demo.com/python:3.12.12`
+**NEW_IMAGE:** `cgr.dev/cgr-demo.com/python:3.12.13`
 
 ## Removed Vulnerabilities
 
@@ -9,18 +9,29 @@
 |---|---|---|---|---|
 | `CVE-2025-15467` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Critical** |
 | `CVE-2025-15467` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Critical** |
+| `CVE-2026-31789` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **Critical** |
+| `CVE-2026-31789` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **Critical** |
+| `CVE-2026-34182` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Critical** |
+| `CVE-2026-34182` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Critical** |
+| `CVE-2026-5450` | `glibc` | `2.42-r1` | `2.43-r7` | **Critical** |
+| `CVE-2026-5450` | `glibc-locale-posix` | `2.42-r1` | `2.43-r7` | **Critical** |
+| `CVE-2026-5450` | `ld-linux` | `2.42-r1` | `2.43-r7` | **Critical** |
+| `CVE-2026-5450` | `libcrypt1` | `2.42-r1` | `2.43-r7` | **Critical** |
 | `CVE-2025-13836` | `python-3.12` | `3.12.11-r8` | `3.12.12-r4` | **High** |
 | `CVE-2025-13836` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r4` | **High** |
 | `CVE-2025-15281` | `glibc` | `2.42-r1` | `2.42-r7` | **High** |
 | `CVE-2025-15281` | `glibc-locale-posix` | `2.42-r1` | `2.42-r7` | **High** |
 | `CVE-2025-15281` | `ld-linux` | `2.42-r1` | `2.42-r7` | **High** |
 | `CVE-2025-15281` | `libcrypt1` | `2.42-r1` | `2.42-r7` | **High** |
+| `CVE-2025-66418` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **High** |
+| `CVE-2025-66471` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **High** |
 | `CVE-2025-69419` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **High** |
 | `CVE-2025-69419` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **High** |
 | `CVE-2025-69420` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **High** |
 | `CVE-2025-69420` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **High** |
 | `CVE-2025-69421` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **High** |
 | `CVE-2025-69421` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **High** |
+| `CVE-2025-70873` | `sqlite-libs` | `3.50.4-r2` | `(unknown)` | **High** |
 | `CVE-2026-0861` | `glibc` | `2.42-r1` | `2.42-r6` | **High** |
 | `CVE-2026-0861` | `glibc-locale-posix` | `2.42-r1` | `2.42-r6` | **High** |
 | `CVE-2026-0861` | `ld-linux` | `2.42-r1` | `2.42-r6` | **High** |
@@ -29,6 +40,67 @@
 | `CVE-2026-0915` | `glibc-locale-posix` | `2.42-r1` | `2.42-r6` | **High** |
 | `CVE-2026-0915` | `ld-linux` | `2.42-r1` | `2.42-r6` | **High** |
 | `CVE-2026-0915` | `libcrypt1` | `2.42-r1` | `2.42-r6` | **High** |
+| `CVE-2026-11822` | `sqlite-libs` | `3.50.4-r2` | `(unknown)` | **High** |
+| `CVE-2026-11824` | `sqlite-libs` | `3.50.4-r2` | `(unknown)` | **High** |
+| `CVE-2026-11940` | `python-3.12` | `3.12.11-r8` | `3.12.13-r10` | **High** |
+| `CVE-2026-11940` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r10` | **High** |
+| `CVE-2026-11972` | `python-3.12` | `3.12.11-r8` | `3.12.13-r10` | **High** |
+| `CVE-2026-11972` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r10` | **High** |
+| `CVE-2026-15308` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **High** |
+| `CVE-2026-21441` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **High** |
+| `CVE-2026-25210` | `libexpat1` | `2.7.3-r0` | `2.7.4-r0` | **High** |
+| `CVE-2026-28386` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-28386` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-28387` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-28387` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-28388` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-28388` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-28389` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-28389` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-28390` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-28390` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-31790` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-31790` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **High** |
+| `CVE-2026-34180` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-34180` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-34181` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-34181` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-34183` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-34183` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-3644` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **High** |
+| `CVE-2026-4046` | `glibc` | `2.42-r1` | `2.43-r6` | **High** |
+| `CVE-2026-4046` | `glibc-locale-posix` | `2.42-r1` | `2.43-r6` | **High** |
+| `CVE-2026-4046` | `ld-linux` | `2.42-r1` | `2.43-r6` | **High** |
+| `CVE-2026-4046` | `libcrypt1` | `2.42-r1` | `2.43-r6` | **High** |
+| `CVE-2026-41080` | `libexpat1` | `2.7.3-r0` | `2.8.0-r0` | **High** |
+| `CVE-2026-4224` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **High** |
+| `CVE-2026-42764` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-42764` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-42765` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-42765` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-4437` | `glibc` | `2.42-r1` | `2.43-r4` | **High** |
+| `CVE-2026-4437` | `glibc-locale-posix` | `2.42-r1` | `2.43-r4` | **High** |
+| `CVE-2026-4437` | `ld-linux` | `2.42-r1` | `2.43-r4` | **High** |
+| `CVE-2026-4437` | `libcrypt1` | `2.42-r1` | `2.43-r4` | **High** |
+| `CVE-2026-44432` | `py3-pip-wheel` | `25.2-r1` | `26.1.2-r1` | **High** |
+| `CVE-2026-45186` | `libexpat1` | `2.7.3-r0` | `2.8.1-r0` | **High** |
+| `CVE-2026-45445` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-45445` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-45447` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-45447` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-4786` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **High** |
+| `CVE-2026-5928` | `glibc` | `2.42-r1` | `2.43-r7` | **High** |
+| `CVE-2026-5928` | `glibc-locale-posix` | `2.42-r1` | `2.43-r7` | **High** |
+| `CVE-2026-5928` | `ld-linux` | `2.42-r1` | `2.43-r7` | **High** |
+| `CVE-2026-5928` | `libcrypt1` | `2.42-r1` | `2.43-r7` | **High** |
+| `CVE-2026-6100` | `python-3.12` | `3.12.11-r8` | `3.12.13-r3` | **High** |
+| `CVE-2026-6100` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r3` | **High** |
+| `CVE-2026-7210` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **High** |
+| `CVE-2026-7383` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-7383` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-9076` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-9076` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **High** |
+| `CVE-2026-9669` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **High** |
 | `CVE-2025-11187` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2025-11187` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2025-11468` | `python-3.12` | `3.12.11-r8` | `3.12.12-r5` | **Medium** |
@@ -46,6 +118,7 @@
 | `CVE-2025-15468` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2025-15469` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2025-15469` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
+| `CVE-2025-50181` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Medium** |
 | `CVE-2025-50182` | `py3-pip-wheel` | `25.2-r1` | `25.3-r1` | **Medium** |
 | `CVE-2025-6075` | `python-3.12` | `3.12.11-r8` | `3.12.12-r2` | **Medium** |
 | `CVE-2025-6075` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r2` | **Medium** |
@@ -60,65 +133,248 @@
 | `CVE-2025-8869` | `py3-pip-wheel` | `25.2-r1` | `25.2-r2` | **Medium** |
 | `CVE-2026-0672` | `python-3.12` | `3.12.11-r8` | `3.12.12-r5` | **Medium** |
 | `CVE-2026-0672` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r5` | **Medium** |
+| `CVE-2026-0864` | `python-3.12` | `3.12.11-r8` | `3.12.13-r10` | **Medium** |
+| `CVE-2026-0864` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r10` | **Medium** |
 | `CVE-2026-0865` | `python-3.12` | `3.12.11-r8` | `3.12.12-r5` | **Medium** |
 | `CVE-2026-0865` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r5` | **Medium** |
 | `CVE-2026-1299` | `python-3.12` | `3.12.11-r8` | `3.12.12-r5` | **Medium** |
 | `CVE-2026-1299` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r5` | **Medium** |
+| `CVE-2026-1502` | `python-3.12` | `3.12.11-r8` | `3.12.13-r3` | **Medium** |
+| `CVE-2026-1502` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r3` | **Medium** |
 | `CVE-2026-22795` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2026-22795` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2026-22796` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2026-22796` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Medium** |
 | `CVE-2026-2297` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **Medium** |
+| `CVE-2026-25645` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Medium** |
+| `CVE-2026-2673` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r3` | **Medium** |
+| `CVE-2026-2673` | `libssl3` | `3.6.0-r0` | `3.6.1-r3` | **Medium** |
 | `CVE-2026-27171` | `zlib` | `1.3.1-r51` | `1.3.2-r0` | **Medium** |
+| `CVE-2026-3219` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Medium** |
+| `CVE-2026-3276` | `python-3.12` | `3.12.11-r8` | `3.12.13-r8` | **Medium** |
+| `CVE-2026-3276` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r8` | **Medium** |
+| `CVE-2026-32776` | `libexpat1` | `2.7.3-r0` | `2.7.5-r0` | **Medium** |
+| `CVE-2026-32777` | `libexpat1` | `2.7.3-r0` | `2.7.5-r0` | **Medium** |
+| `CVE-2026-32778` | `libexpat1` | `2.7.3-r0` | `2.7.5-r0` | **Medium** |
+| `CVE-2026-3446` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **Medium** |
+| `CVE-2026-35188` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-35188` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-42766` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-42766` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-42767` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-42767` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-42769` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-42769` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-4360` | `python-3.12` | `3.12.11-r8` | `3.12.13-r10` | **Medium** |
+| `CVE-2026-4360` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r10` | **Medium** |
+| `CVE-2026-4438` | `glibc` | `2.42-r1` | `2.43-r4` | **Medium** |
+| `CVE-2026-4438` | `glibc-locale-posix` | `2.42-r1` | `2.43-r4` | **Medium** |
+| `CVE-2026-4438` | `ld-linux` | `2.42-r1` | `2.43-r4` | **Medium** |
+| `CVE-2026-4438` | `libcrypt1` | `2.42-r1` | `2.43-r4` | **Medium** |
+| `CVE-2026-44431` | `py3-pip-wheel` | `25.2-r1` | `26.1.2-r1` | **Medium** |
+| `CVE-2026-45409` | `py3-pip-wheel` | `25.2-r1` | `26.1.2-r1` | **Medium** |
+| `CVE-2026-45446` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-45446` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Medium** |
+| `CVE-2026-50219` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56131` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56132` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56403` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56404` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56405` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56406` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56407` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56408` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56409` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56410` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56411` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-56412` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Medium** |
+| `CVE-2026-6019` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **Medium** |
+| `CVE-2026-6357` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Medium** |
+| `CVE-2026-7774` | `python-3.12` | `3.12.11-r8` | `3.12.13-r7` | **Medium** |
+| `CVE-2026-7774` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r7` | **Medium** |
+| `CVE-2026-8328` | `python-3.12` | `3.12.11-r8` | `3.12.13-r6` | **Medium** |
+| `CVE-2026-8328` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r6` | **Medium** |
+| `CVE-2025-13462` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **Low** |
+| `CVE-2026-24515` | `libexpat1` | `2.7.3-r0` | `2.7.4-r0` | **Low** |
+| `CVE-2026-42768` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Low** |
+| `CVE-2026-42768` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Low** |
+| `CVE-2026-42770` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Low** |
+| `CVE-2026-42770` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Low** |
+| `CVE-2026-4519` | `python-3.12` | `3.12.11-r8` | `3.12.13-r1` | **Low** |
+| `CVE-2026-4519` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r1` | **Low** |
+| `CVE-2026-3479` | `python-3.12` | `3.12.11-r8` | `(unknown)` | **Negligible** |
+| `CVE-2026-6791` | `glibc` | `2.42-r1` | `2.43-r10` | **Unknown** |
+| `CVE-2026-6791` | `glibc-locale-posix` | `2.42-r1` | `2.43-r10` | **Unknown** |
+| `CVE-2026-6791` | `ld-linux` | `2.42-r1` | `2.43-r10` | **Unknown** |
+| `CVE-2026-6791` | `libcrypt1` | `2.42-r1` | `2.43-r10` | **Unknown** |
+| `GHSA-2xpw-w6gg-jr37` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Unknown** |
+| `GHSA-38jv-5279-wg99` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Unknown** |
 | `GHSA-399h-rrqc-rpgv` | `python-3.12` | `3.12.11-r8` | `3.12.12-r4` | **Unknown** |
 | `GHSA-399h-rrqc-rpgv` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r4` | **Unknown** |
 | `GHSA-39h2-3mq3-959g` | `python-3.12` | `3.12.11-r8` | `3.12.12-r5` | **Unknown** |
 | `GHSA-39h2-3mq3-959g` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r5` | **Unknown** |
+| `GHSA-3c8f-qq7h-7qv6` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-3c8f-qq7h-7qv6` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-3cxm-476w-ghm2` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-3cxm-476w-ghm2` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
 | `GHSA-3vqq-45qg-2xf6` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-3vqq-45qg-2xf6` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
+| `GHSA-425r-vwq2-26qv` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
 | `GHSA-48p4-8xcf-vxj5` | `py3-pip-wheel` | `25.2-r1` | `25.3-r1` | **Unknown** |
 | `GHSA-49g5-f6qw-8mm7` | `python-3.12` | `3.12.11-r8` | `3.12.12-r0` | **Unknown** |
 | `GHSA-49g5-f6qw-8mm7` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r0` | **Unknown** |
+| `GHSA-4jgc-cj59-f9mm` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-4jgc-cj59-f9mm` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
 | `GHSA-4xh5-x5gv-qwph` | `py3-pip-wheel` | `25.2-r1` | `25.2-r2` | **Unknown** |
 | `GHSA-5888-36j9-c92p` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-5888-36j9-c92p` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
+| `GHSA-58mv-qqmv-gqgv` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-58mv-qqmv-gqgv` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-58qw-9mgm-455v` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Unknown** |
+| `GHSA-5m8f-m8jv-3rp3` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-5m8f-m8jv-3rp3` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
 | `GHSA-5mc7-p6pj-r3f5` | `python-3.12` | `3.12.11-r8` | `3.12.12-r5` | **Unknown** |
 | `GHSA-5mc7-p6pj-r3f5` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r5` | **Unknown** |
 | `GHSA-5pf6-63v3-88hw` | `glibc` | `2.42-r1` | `2.42-r6` | **Unknown** |
 | `GHSA-5pf6-63v3-88hw` | `glibc-locale-posix` | `2.42-r1` | `2.42-r6` | **Unknown** |
 | `GHSA-5pf6-63v3-88hw` | `ld-linux` | `2.42-r1` | `2.42-r6` | **Unknown** |
 | `GHSA-5pf6-63v3-88hw` | `libcrypt1` | `2.42-r1` | `2.42-r6` | **Unknown** |
+| `GHSA-5pg7-f6xv-j6m4` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-5pg7-f6xv-j6m4` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-638v-9w3r-gh6q` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
+| `GHSA-65pc-fj4g-8rjx` | `py3-pip-wheel` | `25.2-r1` | `26.1.2-r1` | **Unknown** |
+| `GHSA-68vw-xv3c-52vp` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
+| `GHSA-6cj7-v55x-8mwr` | `python-3.12` | `3.12.11-r8` | `3.12.13-r7` | **Unknown** |
+| `GHSA-6cj7-v55x-8mwr` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r7` | **Unknown** |
 | `GHSA-6rv6-r2f2-gqrc` | `python-3.12` | `3.12.11-r8` | `3.12.12-r5` | **Unknown** |
 | `GHSA-6rv6-r2f2-gqrc` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r5` | **Unknown** |
 | `GHSA-78qr-24v5-7q73` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-78qr-24v5-7q73` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
+| `GHSA-7phf-qpm5-q6p3` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-7phf-qpm5-q6p3` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-7x88-9hgc-69gf` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-7x88-9hgc-69gf` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-829p-mc9m-7xhr` | `glibc` | `2.42-r1` | `2.43-r7` | **Unknown** |
+| `GHSA-829p-mc9m-7xhr` | `glibc-locale-posix` | `2.42-r1` | `2.43-r7` | **Unknown** |
+| `GHSA-829p-mc9m-7xhr` | `ld-linux` | `2.42-r1` | `2.43-r7` | **Unknown** |
+| `GHSA-829p-mc9m-7xhr` | `libcrypt1` | `2.42-r1` | `2.43-r7` | **Unknown** |
+| `GHSA-857q-6v86-xp84` | `libexpat1` | `2.7.3-r0` | `2.7.4-r0` | **Unknown** |
+| `GHSA-935r-rfch-9mr7` | `glibc` | `2.42-r1` | `2.43-r4` | **Unknown** |
+| `GHSA-935r-rfch-9mr7` | `glibc-locale-posix` | `2.42-r1` | `2.43-r4` | **Unknown** |
+| `GHSA-935r-rfch-9mr7` | `ld-linux` | `2.42-r1` | `2.43-r4` | **Unknown** |
+| `GHSA-935r-rfch-9mr7` | `libcrypt1` | `2.42-r1` | `2.43-r4` | **Unknown** |
+| `GHSA-9jq5-63hm-6q5g` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
+| `GHSA-9mc4-rqmq-h467` | `python-3.12` | `3.12.11-r8` | `3.12.13-r10` | **Unknown** |
+| `GHSA-9mc4-rqmq-h467` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r10` | **Unknown** |
+| `GHSA-9rpf-mhcj-gv7r` | `libexpat1` | `2.7.3-r0` | `2.7.5-r0` | **Unknown** |
+| `GHSA-f5vx-f6jp-89j6` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-f5vx-f6jp-89j6` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-f684-cpcq-j565` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-f684-cpcq-j565` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-f9v2-4w9p-2cwc` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-f9v2-4w9p-2cwc` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-fchf-wvcc-qf9g` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
+| `GHSA-fgpp-q3px-3xhc` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-fgpp-q3px-3xhc` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-fpqv-cr66-h6pc` | `libexpat1` | `2.7.3-r0` | `2.8.0-r0` | **Unknown** |
+| `GHSA-g345-7jg6-m22p` | `python-3.12` | `3.12.11-r8` | `3.12.13-r10` | **Unknown** |
+| `GHSA-g345-7jg6-m22p` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r10` | **Unknown** |
 | `GHSA-g78j-46j5-97cr` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-g78j-46j5-97cr` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
+| `GHSA-g7c4-wv7q-gcc6` | `glibc` | `2.42-r1` | `2.43-r6` | **Unknown** |
+| `GHSA-g7c4-wv7q-gcc6` | `glibc-locale-posix` | `2.42-r1` | `2.43-r6` | **Unknown** |
+| `GHSA-g7c4-wv7q-gcc6` | `ld-linux` | `2.42-r1` | `2.43-r6` | **Unknown** |
+| `GHSA-g7c4-wv7q-gcc6` | `libcrypt1` | `2.42-r1` | `2.43-r6` | **Unknown** |
+| `GHSA-gc5v-m9x4-r6x2` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Unknown** |
+| `GHSA-gf2w-jqmq-fcm8` | `python-3.12` | `3.12.11-r8` | `3.12.13-r10` | **Unknown** |
+| `GHSA-gf2w-jqmq-fcm8` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r10` | **Unknown** |
+| `GHSA-gm62-xv2j-4w53` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Unknown** |
+| `GHSA-gxhg-7jx8-m22j` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-gxhg-7jx8-m22j` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-h2cc-wx97-xp8v` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-h2cc-wx97-xp8v` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-h5j3-rr49-jmm6` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
 | `GHSA-h858-mf2m-8jf4` | `zlib` | `1.3.1-r51` | `1.3.2-r0` | **Unknown** |
 | `GHSA-hfqx-732w-xrrw` | `python-3.12` | `3.12.11-r8` | `3.12.12-r4` | **Unknown** |
 | `GHSA-hfqx-732w-xrrw` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r4` | **Unknown** |
+| `GHSA-hjxq-7w9q-2jw6` | `python-3.12` | `3.12.11-r8` | `3.12.13-r3` | **Unknown** |
+| `GHSA-hjxq-7w9q-2jw6` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r3` | **Unknown** |
 | `GHSA-hpc7-gcqm-58fv` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-hpc7-gcqm-58fv` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
+| `GHSA-hqmj-33cm-gqpq` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
+| `GHSA-hx82-g397-5ggr` | `libexpat1` | `2.7.3-r0` | `2.7.5-r0` | **Unknown** |
+| `GHSA-j79m-9jxq-788r` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-j79m-9jxq-788r` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-j989-fggp-qgp5` | `python-3.12` | `3.12.11-r8` | `3.12.13-r6` | **Unknown** |
+| `GHSA-j989-fggp-qgp5` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r6` | **Unknown** |
+| `GHSA-jg6j-874m-wgjj` | `python-3.12` | `3.12.11-r8` | `3.12.13-r8` | **Unknown** |
+| `GHSA-jg6j-874m-wgjj` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r8` | **Unknown** |
 | `GHSA-jh94-8q48-f3m3` | `python-3.12` | `3.12.11-r8` | `3.12.12-r5` | **Unknown** |
 | `GHSA-jh94-8q48-f3m3` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r5` | **Unknown** |
+| `GHSA-jhv6-83wh-9vj5` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
+| `GHSA-jp4c-xjxw-mgf9` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Unknown** |
+| `GHSA-m2mm-5w64-p8p7` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
+| `GHSA-m5wq-r4r4-4qrh` | `glibc` | `2.42-r1` | `2.43-r4` | **Unknown** |
+| `GHSA-m5wq-r4r4-4qrh` | `glibc-locale-posix` | `2.42-r1` | `2.43-r4` | **Unknown** |
+| `GHSA-m5wq-r4r4-4qrh` | `ld-linux` | `2.42-r1` | `2.43-r4` | **Unknown** |
+| `GHSA-m5wq-r4r4-4qrh` | `libcrypt1` | `2.42-r1` | `2.43-r4` | **Unknown** |
+| `GHSA-mf9v-mfxr-j63j` | `py3-pip-wheel` | `25.2-r1` | `26.1.2-r1` | **Unknown** |
+| `GHSA-mpwv-4wmh-cvf7` | `libexpat1` | `2.7.3-r0` | `2.7.4-r0` | **Unknown** |
+| `GHSA-pg25-7cx5-cvcm` | `python-3.12` | `3.12.11-r8` | `3.12.13-r3` | **Unknown** |
+| `GHSA-pg25-7cx5-cvcm` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r3` | **Unknown** |
+| `GHSA-pq67-6m6q-mj2v` | `py3-pip-wheel` | `25.2-r1` | `26.1.1-r0` | **Unknown** |
+| `GHSA-q457-vx59-3fqg` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-q457-vx59-3fqg` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-q98x-73c3-57gj` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-q98x-73c3-57gj` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-qccp-gfcp-xxvc` | `py3-pip-wheel` | `25.2-r1` | `26.1.2-r1` | **Unknown** |
 | `GHSA-qg56-4cfq-w9w3` | `glibc` | `2.42-r1` | `2.42-r7` | **Unknown** |
 | `GHSA-qg56-4cfq-w9w3` | `glibc-locale-posix` | `2.42-r1` | `2.42-r7` | **Unknown** |
 | `GHSA-qg56-4cfq-w9w3` | `ld-linux` | `2.42-r1` | `2.42-r7` | **Unknown** |
 | `GHSA-qg56-4cfq-w9w3` | `libcrypt1` | `2.42-r1` | `2.42-r7` | **Unknown** |
 | `GHSA-qhx6-hpfj-8m4g` | `python-3.12` | `3.12.11-r8` | `3.12.12-r4` | **Unknown** |
 | `GHSA-qhx6-hpfj-8m4g` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r4` | **Unknown** |
+| `GHSA-r396-2q2c-pjhr` | `libexpat1` | `2.7.3-r0` | `2.8.1-r0` | **Unknown** |
+| `GHSA-r8fp-cwhw-m8hh` | `libexpat1` | `2.7.3-r0` | `2.7.5-r0` | **Unknown** |
+| `GHSA-r8qx-5vfx-8w6r` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
 | `GHSA-r9hf-rxjm-gv2f` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-r9hf-rxjm-gv2f` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-rhx3-fg8p-f9m4` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-rhx3-fg8p-f9m4` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
+| `GHSA-rm92-fj5q-mpj5` | `python-3.12` | `3.12.11-r8` | `3.12.13-r1` | **Unknown** |
+| `GHSA-rm92-fj5q-mpj5` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r1` | **Unknown** |
+| `GHSA-rpg5-467j-c25q` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-rpg5-467j-c25q` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-rpj2-p5pj-r33v` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-rpj2-p5pj-r33v` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-v2j6-3q6q-gm3g` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
 | `GHSA-v2vr-926q-29fr` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-v2vr-926q-29fr` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
+| `GHSA-v3cw-2f3g-f38x` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
+| `GHSA-v446-xwfm-x7mr` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-v446-xwfm-x7mr` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-v898-xg3c-w4rj` | `glibc` | `2.42-r1` | `2.43-r7` | **Unknown** |
+| `GHSA-v898-xg3c-w4rj` | `glibc-locale-posix` | `2.42-r1` | `2.43-r7` | **Unknown** |
+| `GHSA-v898-xg3c-w4rj` | `ld-linux` | `2.42-r1` | `2.43-r7` | **Unknown** |
+| `GHSA-v898-xg3c-w4rj` | `libcrypt1` | `2.42-r1` | `2.43-r7` | **Unknown** |
 | `GHSA-vc2m-m665-8xm2` | `python-3.12` | `3.12.11-r8` | `3.12.12-r2` | **Unknown** |
 | `GHSA-vc2m-m665-8xm2` | `python-3.12-base` | `3.12.11-r8` | `3.12.12-r2` | **Unknown** |
+| `GHSA-vc8w-w49c-4jgj` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-vc8w-w49c-4jgj` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-vgxx-5xj5-q97x` | `libcrypto3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-vgxx-5xj5-q97x` | `libssl3` | `3.6.0-r0` | `3.6.2-r0` | **Unknown** |
+| `GHSA-vm8w-j6fw-jc7r` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-vm8w-j6fw-jc7r` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
 | `GHSA-w42r-ph9f-9x66` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-w42r-ph9f-9x66` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
+| `GHSA-w853-v86g-gv7j` | `libcrypto3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
+| `GHSA-w853-v86g-gv7j` | `libssl3` | `3.6.0-r0` | `3.6.3-r0` | **Unknown** |
 | `GHSA-w9rv-xc8m-cmqp` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-w9rv-xc8m-cmqp` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
+| `GHSA-wj64-gh9j-xm82` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r3` | **Unknown** |
+| `GHSA-wj64-gh9j-xm82` | `libssl3` | `3.6.0-r0` | `3.6.1-r3` | **Unknown** |
+| `GHSA-wqxf-pjxh-hh4h` | `python-3.12` | `3.12.11-r8` | `3.12.13-r10` | **Unknown** |
+| `GHSA-wqxf-pjxh-hh4h` | `python-3.12-base` | `3.12.11-r8` | `3.12.13-r10` | **Unknown** |
 | `GHSA-wvhq-3h88-rf6g` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-wvhq-3h88-rf6g` | `libssl3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
 | `GHSA-x77r-97gw-wh89` | `libcrypto3` | `3.6.0-r0` | `3.6.1-r0` | **Unknown** |
@@ -129,18 +385,29 @@
 | `GHSA-xp56-6525-9chf` | `glibc-locale-posix` | `2.42-r1` | `2.42-r6` | **Unknown** |
 | `GHSA-xp56-6525-9chf` | `ld-linux` | `2.42-r1` | `2.42-r6` | **Unknown** |
 | `GHSA-xp56-6525-9chf` | `libcrypt1` | `2.42-r1` | `2.42-r6` | **Unknown** |
+| `GHSA-xqw9-f65g-5qxw` | `libexpat1` | `2.7.3-r0` | `2.8.2-r0` | **Unknown** |
 
 
 ## Grype summary (top findings)
 
 ```text
-NAME         INSTALLED   FIXED-IN  TYPE  VULNERABILITY   SEVERITY 
-python-3.12  3.12.12-r7            apk   CVE-2025-12781  Medium    
-python-3.12  3.12.12-r7            apk   CVE-2025-15366  Medium    
-python-3.12  3.12.12-r7            apk   CVE-2025-15367  Medium    
-python-3.12  3.12.12-r7            apk   CVE-2026-2297   Medium
+NAME         INSTALLED    FIXED-IN  TYPE  VULNERABILITY   SEVERITY   
+python-3.12  3.12.13-r10            apk   CVE-2026-15308  High        
+python-3.12  3.12.13-r10            apk   CVE-2026-3644   High        
+python-3.12  3.12.13-r10            apk   CVE-2026-4224   High        
+python-3.12  3.12.13-r10            apk   CVE-2026-4786   High        
+python-3.12  3.12.13-r10            apk   CVE-2026-7210   High        
+python-3.12  3.12.13-r10            apk   CVE-2026-9669   High        
+python-3.12  3.12.13-r10            apk   CVE-2025-12781  Medium      
+python-3.12  3.12.13-r10            apk   CVE-2025-15366  Medium      
+python-3.12  3.12.13-r10            apk   CVE-2025-15367  Medium      
+python-3.12  3.12.13-r10            apk   CVE-2026-2297   Medium      
+python-3.12  3.12.13-r10            apk   CVE-2026-3446   Medium      
+python-3.12  3.12.13-r10            apk   CVE-2026-6019   Medium      
+python-3.12  3.12.13-r10            apk   CVE-2025-13462  Low         
+python-3.12  3.12.13-r10            apk   CVE-2026-3479   Negligible
 ```
 
 ## Prisma Cloud
 
-https://app.prismacloud.io/compute?computeState=/monitor/vulnerabilities/images/ci?search%3Dsha256%253Aebac0b192ca653240b727e756a775976c69e8e1f0ffaaa128230521516b583a8
+https://app.prismacloud.io/compute?computeState=/monitor/vulnerabilities/images/ci?search%3Dsha256%253A29e909c0d1d57186a7f7daae9f17f225214eb961bd8154a6682e34ce3a4ed3c7
